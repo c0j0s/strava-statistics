@@ -2,7 +2,7 @@
 Activities: 活动
 'Activity intensity': 活动强度
 'Adaptive & Inclusive Sports': 适应性和包容性运动
-Advanced: 高级
+Advanced: 高级公式
 Afternoon: 下午
 'All activities': 所有活动
 'All time': 所有时间
@@ -18,7 +18,7 @@ Cadence: 踏频
 Calories: 卡路里
 Canoeing: 划独木舟
 'Carbon emission comparisons': '碳排放比较'
-'Challenge consistency': 挑战一致性
+'Challenge consistency': 挑战持续表
 Challenges: 挑战
 'Climb a total of 2000m': 总共攀登2000米
 'Climb a total of 7500m': 总共攀登7500米
@@ -32,7 +32,7 @@ Commutes: 通勤
 Crossfit: 交叉健身
 Dashboard: 仪表板
 'Days needed': 所需天数
-'Daytime stats': 白天统计
+'Daytime stats': 时间段统计
 Dec: 十二月
 Device: 设备
 Distance: 距离
@@ -48,7 +48,7 @@ Distribution: 分布
 'Earliest start time': 最早开始时间
 Eddington: 愛丁頓數
 Elev: 海拔
-Elevation: 海拔高度
+Elevation: 海拔
 Elliptical: 椭圆机
 Evening: 晚上
 'Excludes commutes': '筛除通勤'
@@ -113,9 +113,9 @@ Morning: 早晨
 'Most consecutive days': 最多连续天数
 'Most elevation': 最大爬升
 'Most kudos': 最多点赞
-'Most recent activities': 最近的活动
+'Most recent activities': 近期活动
 'Mountain Bike Rides': 山地车骑行
-'Moving time': 移动时间
+'Moving time': 运动时长
 Night: 夜晚
 'No activities': 没有活动
 'Nordic Ski': 北欧滑雪
@@ -154,7 +154,7 @@ Search: 搜索
 Segments: 路段
 Sep: 九月
 'Show information': 显示信息
-Simplified: 简化
+Simplified: 简化公式
 'Since I began working out {numberOfDaysAgo} ago on {startDate}, I had {totalDaysOfWorkingOut} active days of working out.': '从{startDate}至今，{numberOfDaysAgo}多天以来，我已经锻炼了{totalDaysOfWorkingOut}天。'
 Skateboard: 滑板
 Skating: 滑冰
@@ -169,7 +169,7 @@ Squash: 壁球
 'Start slideshow': 播放幻灯片
 'Statistics for Strava': 'Statistics for Strava'
 'Stats per gear': 按装备统计
-'Stats per weekday': 按工作日统计
+'Stats per weekday': 工作日统计
 Sun: 周日
 Sunday: 星期日
 Surfing: 冲浪
@@ -182,7 +182,7 @@ Tennis: 网球
 'The amount of CO₂ that {amountOfTrees} trees absorb annually': '{amountOfTrees}棵树每年吸收的二氧化碳量'
 'This badge is dynamically created. You can use it in any &lt;img&gt; tag': '此徽章是动态创建的。你可以在任何&lt;img&gt;标签中使用它'
 'This formula means that riding for an hour at your max heart rate results in a score of 100, which we consider "high intensity"': 这个公式意味着以最大心率骑行一小时的得分为100，我们认为这是“高强度”
-'This map shows the daily training intensity for the last year. The training intensity for an activity is calculated based on several metrics.': 这张地图显示了过去一年的每日训练强度。活动的训练强度是基于多个指标计算的。
+'This map shows the daily training intensity for the last year. The training intensity for an activity is calculated based on several metrics.': 这张活动图显示了过去一年的每日训练强度。活动的训练强度是基于多个指标计算的。
 Thu: 周四
 Thursday: 星期四
 'Time / week': 每周时间
@@ -193,7 +193,7 @@ To: 到
 'Total carbon saved': 总节约碳排放
 'Total kudos': 总点赞
 'Trail Runs': 越野跑
-Trivia: 琐事
+Trivia: 指标
 Tue: 周二
 Tuesday: 星期二
 'Updated on': 更新于
