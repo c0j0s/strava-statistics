@@ -46,6 +46,7 @@ https://github.com/user-attachments/assets/9aaaafd9-bc8f-4e1d-bb9d-45d3c661a080
 * Detailed list of all your activities
 * Monthly stats with calendar view
 * Gear stats
+* Gear (component) maintenance tracking ([instructions](https://github.com/robiningelbrecht/statistics-for-strava/wiki/Gear-maintenance))
 * Eddington for biking and running activities
 * Detailed list of your segments and corresponding efforts
 * Heatmap
@@ -253,3 +254,20 @@ Only do this if you are willing to help on the actual translation 🙃.
 
 For any feedback, help or feature requests, please [open a new issue](https://github.com/robiningelbrecht/statistics-for-strava/issues/new/choose). 
 Before you do, please read [the wiki](https://github.com/robiningelbrecht/statistics-for-strava/wiki). The question you have might be answered over there.
+
+## 🛠️ Local setup
+
+Run the following commands to setup the project on your local machine
+
+```bash
+> git clone git@github.com:your-name/your-fork.git
+> make composer arg="install"
+> make up
+```
+
+Everytime you make changes to the app, you need to build the html files again
+
+```bash
+> make console arg=“app:strava:build-files
+```
+

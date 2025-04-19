@@ -1,4 +1,4 @@
-/*! tailwindcss v4.1.3 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.1.4 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -1062,6 +1062,9 @@
       max-width: 96rem;
     }
   }
+  .-mx-4 {
+    margin-inline: calc(var(--spacing) * -4);
+  }
   .mx-1 {
     margin-inline: calc(var(--spacing) * 1);
   }
@@ -1083,8 +1086,17 @@
   .ms-auto {
     margin-inline-start: auto;
   }
+  .me-2 {
+    margin-inline-end: calc(var(--spacing) * 2);
+  }
+  .me-3 {
+    margin-inline-end: calc(var(--spacing) * 3);
+  }
   .mt-1 {
     margin-top: calc(var(--spacing) * 1);
+  }
+  .mt-1\.5 {
+    margin-top: calc(var(--spacing) * 1.5);
   }
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
@@ -1094,6 +1106,9 @@
   }
   .mt-6 {
     margin-top: calc(var(--spacing) * 6);
+  }
+  .mt-\[2px\] {
+    margin-top: 2px;
   }
   .apexcharts-canvas {
     & .apexcharts-tooltip {
@@ -1729,11 +1744,17 @@
   .w-36 {
     width: calc(var(--spacing) * 36);
   }
+  .w-48 {
+    width: calc(var(--spacing) * 48);
+  }
   .w-56 {
     width: calc(var(--spacing) * 56);
   }
   .w-64 {
     width: calc(var(--spacing) * 64);
+  }
+  .w-\[1rem\] {
+    width: 1rem;
   }
   .w-\[2rem\] {
     width: 2rem;
@@ -1764,6 +1785,9 @@
   }
   .w-\[rem\] {
     width: rem;
+  }
+  .w-auto {
+    width: auto;
   }
   .w-fit {
     width: fit-content;
@@ -1893,7 +1917,7 @@
     rotate: 180deg;
   }
   .transform {
-    transform: var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y);
+    transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
   .transform-none {
     transform: none;
@@ -1912,6 +1936,12 @@
   }
   .resize {
     resize: both;
+  }
+  .list-inside {
+    list-style-position: inside;
+  }
+  .list-disc {
+    list-style-type: disc;
   }
   .list-none {
     list-style-type: none;
@@ -2038,6 +2068,9 @@
   }
   .gap-y-3 {
     row-gap: calc(var(--spacing) * 3);
+  }
+  .gap-y-4 {
+    row-gap: calc(var(--spacing) * 4);
   }
   .divide-x {
     :where(& > :not(:last-child)) {
@@ -2313,6 +2346,9 @@
       color: white;
     }
   }
+  .border-blue-300 {
+    border-color: var(--color-blue-300);
+  }
   .border-blue-600 {
     border-color: var(--color-blue-600);
   }
@@ -2328,8 +2364,14 @@
   .border-gray-300 {
     border-color: var(--color-gray-300);
   }
+  .border-red-300 {
+    border-color: var(--color-red-300);
+  }
   .border-strava-orange {
     border-color: var(--color-strava-orange);
+  }
+  .border-yellow-300 {
+    border-color: var(--color-yellow-300);
   }
   .border-yellow-800 {
     border-color: var(--color-yellow-800);
@@ -2385,6 +2427,9 @@
       background-color: var(--color-gray-700);
     }
   }
+  .bg-blue-50 {
+    background-color: var(--color-blue-50);
+  }
   .bg-blue-600\/\[\.1\] {
     background-color: color-mix(in srgb, #2563EB 10%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -2418,6 +2463,9 @@
       background-color: color-mix(in oklab, var(--color-gray-900) 50%, transparent);
     }
   }
+  .bg-green-600 {
+    background-color: var(--color-green-600);
+  }
   .bg-orange-400\/40 {
     background-color: color-mix(in srgb, #ED8936 40%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -2429,6 +2477,12 @@
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-orange-500) 10%, transparent);
     }
+  }
+  .bg-red-50 {
+    background-color: var(--color-red-50);
+  }
+  .bg-red-600 {
+    background-color: var(--color-red-600);
   }
   .bg-red-600\/\[\.1\] {
     background-color: color-mix(in srgb, #DC2626 10%, transparent);
@@ -2465,6 +2519,9 @@
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-yellow-300) 10%, transparent);
     }
+  }
+  .bg-yellow-400 {
+    background-color: var(--color-yellow-400);
   }
   .dark {
     & .selectedCell {
@@ -2518,6 +2575,9 @@
       stroke: var(--color-gray-700) !important;
     }
   }
+  .object-cover {
+    object-fit: cover;
+  }
   .apexcharts-legend {
     .apexcharts-canvas & {
       padding: 0 !important;
@@ -2548,6 +2608,9 @@
   }
   .p-6 {
     padding: calc(var(--spacing) * 6);
+  }
+  .p-\[1rem\] {
+    padding: 1rem;
   }
   .px-1 {
     padding-inline: calc(var(--spacing) * 1);
@@ -2651,6 +2714,9 @@
   }
   .pl-2 {
     padding-left: calc(var(--spacing) * 2);
+  }
+  .pl-11 {
+    padding-left: calc(var(--spacing) * 11);
   }
   .datatable-empty {
     .datatable-wrapper .datatable-table & {
@@ -2762,6 +2828,10 @@
     --tw-leading: calc(var(--spacing) * 9);
     line-height: calc(var(--spacing) * 9);
   }
+  .leading-normal {
+    --tw-leading: var(--leading-normal);
+    line-height: var(--leading-normal);
+  }
   .leading-relaxed {
     --tw-leading: var(--leading-relaxed);
     line-height: var(--leading-relaxed);
@@ -2839,6 +2909,9 @@
   .text-blue-600 {
     color: var(--color-blue-600);
   }
+  .text-blue-800 {
+    color: var(--color-blue-800);
+  }
   .text-gray-200 {
     color: var(--color-gray-200);
   }
@@ -2863,17 +2936,29 @@
   .text-green-500 {
     color: var(--color-green-500);
   }
+  .text-green-700 {
+    color: var(--color-green-700);
+  }
   .text-orange-800 {
     color: var(--color-orange-800);
   }
   .text-red-600 {
     color: var(--color-red-600);
   }
+  .text-red-700 {
+    color: var(--color-red-700);
+  }
+  .text-red-800 {
+    color: var(--color-red-800);
+  }
   .text-strava-orange {
     color: var(--color-strava-orange);
   }
   .text-white {
     color: var(--color-white);
+  }
+  .text-yellow-700 {
+    color: var(--color-yellow-700);
   }
   .text-yellow-800 {
     color: var(--color-yellow-800);
@@ -2960,6 +3045,11 @@
   }
   .\[writing-mode\:vertical-lr\] {
     writing-mode: vertical-lr;
+  }
+  .\*\:px-4 {
+    :is(& > *) {
+      padding-inline: calc(var(--spacing) * 4);
+    }
   }
   .group-odd\:bg-white {
     &:is(:where(.group):nth-child(odd) *) {
@@ -3156,6 +3246,13 @@
       }
     }
   }
+  .hover\:no-underline {
+    &:hover {
+      @media (hover: hover) {
+        text-decoration-line: none;
+      }
+    }
+  }
   .hover\:underline {
     &:hover {
       @media (hover: hover) {
@@ -3236,6 +3333,20 @@
       outline-style: none;
     }
   }
+  .aria-expanded\:bg-gray-100 {
+    &[aria-expanded="true"] {
+      background-color: var(--color-gray-100);
+    }
+  }
+  .hover\:aria-expanded\:bg-gray-200 {
+    &:hover {
+      @media (hover: hover) {
+        &[aria-expanded="true"] {
+          background-color: var(--color-gray-200);
+        }
+      }
+    }
+  }
   .aria-selected\:bg-gray-100 {
     &[aria-selected="true"] {
       background-color: var(--color-gray-100);
@@ -3314,6 +3425,17 @@
         margin-inline-start: calc(calc(var(--spacing) * 2) * var(--tw-space-x-reverse));
         margin-inline-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-x-reverse)));
       }
+    }
+  }
+  .md\:rounded-none {
+    @media (width >= 48rem) {
+      border-radius: 0;
+    }
+  }
+  .md\:rounded-s-lg {
+    @media (width >= 48rem) {
+      border-start-start-radius: var(--radius-lg);
+      border-end-start-radius: var(--radius-lg);
     }
   }
   .md\:p-5 {
@@ -4052,27 +4174,22 @@
 @property --tw-rotate-x {
   syntax: "*";
   inherits: false;
-  initial-value: rotateX(0);
 }
 @property --tw-rotate-y {
   syntax: "*";
   inherits: false;
-  initial-value: rotateY(0);
 }
 @property --tw-rotate-z {
   syntax: "*";
   inherits: false;
-  initial-value: rotateZ(0);
 }
 @property --tw-skew-x {
   syntax: "*";
   inherits: false;
-  initial-value: skewX(0);
 }
 @property --tw-skew-y {
   syntax: "*";
   inherits: false;
-  initial-value: skewY(0);
 }
 @property --tw-space-y-reverse {
   syntax: "*";
@@ -4258,11 +4375,11 @@
       --tw-translate-x: 0;
       --tw-translate-y: 0;
       --tw-translate-z: 0;
-      --tw-rotate-x: rotateX(0);
-      --tw-rotate-y: rotateY(0);
-      --tw-rotate-z: rotateZ(0);
-      --tw-skew-x: skewX(0);
-      --tw-skew-y: skewY(0);
+      --tw-rotate-x: initial;
+      --tw-rotate-y: initial;
+      --tw-rotate-z: initial;
+      --tw-skew-x: initial;
+      --tw-skew-y: initial;
       --tw-space-y-reverse: 0;
       --tw-space-x-reverse: 0;
       --tw-divide-x-reverse: 0;

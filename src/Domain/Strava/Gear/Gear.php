@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Gear
 {
+    private string $imageSrc;
+
     private function __construct(
         #[ORM\Id, ORM\Column(type: 'string', unique: true)]
         private readonly GearId $gearId,
@@ -85,7 +87,7 @@ class Gear
 
     public function getDistance(): Kilometer
     {
-        return Kilometer::from($this->distanceInMeter->toInt() / 1000);
+        return $this->distanceInMeter->toKilometer();
     }
 
     public function isRetired(): bool
@@ -110,5 +112,21 @@ class Gear
     public function getCreatedOn(): SerializableDateTime
     {
         return $this->createdOn;
+    }
+
+    public function getImageSrc(): ?string
+    {
+        if (!isset($this->imageSrc)) {
+            return null;
+        }
+
+        return $this->imageSrc;
+    }
+
+    public function enrichWithImageSrc(string $imageSrc): self
+    {
+        $this->imageSrc = $imageSrc;
+
+        return $this;
     }
 }
