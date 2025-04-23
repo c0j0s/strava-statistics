@@ -74,7 +74,7 @@ You'll need a `Strava client ID`, `Strava client Secret` and a `refresh token`
     * Navigate to https://developers.strava.com/docs/getting-started/#d-how-to-authenticate
       and scroll down to "_For demonstration purposes only, here is how to reproduce the graph above with cURL:_"
     * Follow the 11 steps explained there
-    * Make sure you change the `&scope=read` to `&scope=activity:read_all` to make sure your refresh token has access to all activities
+    * In step 2, change the `&scope=read` to `&scope=activity:read_all` to make sure your refresh token has access to all activities
 
 ## 🛠️ Installation 
 
@@ -143,7 +143,7 @@ IMPORT_AND_BUILD_SCHEDULE="5 4 * * *"
 # Valid timezones can found under TZ Identifier column here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
 TZ=Etc/GMT
 
-# Allowed options: en_US, fr_FR, nl_BE, de_DE, pt_PT or zh_CN
+# Allowed options: en_US, fr_FR, nl_BE, de_DE, pt_BR, pt_PT or zh_CN
 LOCALE=en_US
 # Allowed options: metric or imperial
 UNIT_SYSTEM=metric
@@ -244,7 +244,7 @@ Currently, the app is translated to:
 * 🇫🇷 French (thanks to [@llaumgui](https://github.com/llaumgui) and [@Ahmosys](https://github.com/llaumgui))
 * 🇩🇪 German (thanks to [@daydreamer77](https://github.com/daydreamer77))
 * 🇧🇪 Dutch
-* 🇵🇹 Portuguese (thanks to [@jcnmsg](https://github.com/jcnmsg))
+* 🇵🇹 Portuguese (thanks to [@jcnmsg](https://github.com/jcnmsg) & [@davisenra](https://github.com/davisenra))
 * 🇨🇳 Simplified Chinese (thanks to [@c0j0s](https://github.com/c0j0s))
 
 If you want to see a new locale added, please  [open a new issue](https://github.com/robiningelbrecht/statistics-for-strava/issues/new?template=translations-and-localisation.md). 
@@ -268,6 +268,6 @@ Run the following commands to setup the project on your local machine
 Everytime you make changes to the app, you need to build the html files again
 
 ```bash
-> make console arg=“app:strava:build-files
+> make console arg="app:strava:build-files"
 ```
 
