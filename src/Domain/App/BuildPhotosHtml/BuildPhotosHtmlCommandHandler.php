@@ -6,8 +6,8 @@ namespace App\Domain\App\BuildPhotosHtml;
 
 use App\Domain\Strava\Activity\Image\ImageRepository;
 use App\Domain\Strava\Activity\SportType\SportTypeRepository;
-use App\Infrastructure\CQRS\Command;
-use App\Infrastructure\CQRS\CommandHandler;
+use App\Infrastructure\CQRS\Command\Command;
+use App\Infrastructure\CQRS\Command\CommandHandler;
 use League\Flysystem\FilesystemOperator;
 use Twig\Environment;
 
@@ -27,16 +27,6 @@ final readonly class BuildPhotosHtmlCommandHandler implements CommandHandler
 
         $importedSportTypes = $this->sportTypeRepository->findAll();
         $images = $this->imageRepository->findAll();
-
-        $lightGalleryElements = [];
-        foreach ($images as $image) {
-            $activity = $image->getActivity();
-            $lightGalleryElements[] = [
-                'src' => $image->getImageUrl(),
-                'subHtml' => '<p>'.$activity->getSanitizedName().'</p>',
-                'alt' => $activity->getSanitizedName(),
-            ];
-        }
 
         $this->buildStorage->write(
             'photos.html',

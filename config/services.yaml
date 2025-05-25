@@ -4,35 +4,16 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-    env(MANIFEST_APP_URL): 'http://localhost:8080/'
-    env(SPORT_TYPES_TO_IMPORT): '[]'
-    env(ACTIVITY_VISIBILITIES_TO_IMPORT): '[]'
-    env(ACTIVITIES_TO_SKIP_DURING_IMPORT): '[]'
-    env(SKIP_ACTIVITIES_RECORDED_BEFORE): ''
-    env(NUMBER_OF_NEW_ACTIVITIES_TO_PROCESS_PER_IMPORT): 250
-    env(FTP_HISTORY):
-    env(ATHLETE_WEIGHT_HISTORY):
-    env(MAX_HEART_RATE_FORMULA): 'fox'
-    env(LOCALE): 'en_US'
-    env(UNIT_SYSTEM): 'metric'
-    env(TIME_FORMAT): 24
-    env(DATE_FORMAT): 'DAY-MONTH-YEAR'
-    env(PROFILE_PICTURE_URL): ''
-    env(NTFY_URL): ''
-    env(ZWIFT_LEVEL):
-    env(ZWIFT_RACING_SCORE):
+    env(APP_ENV): 'dev'
+    env(APP_DEBUG): 0
+    env(LOCK_DSN): 'flock'
+    env(TZ): ''
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-
-    _instanceof:
-        App\Infrastructure\CQRS\CommandHandler:
-            tags: ['app.command_handler']
-        App\Domain\Strava\Gear\Maintenance\Task\Progress\MaintenanceTaskProgressCalculation:
-            tags: ['app.maintenance_progress_calculation']
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -59,113 +40,127 @@ services:
         decorates: Doctrine\Migrations\Version\DbalMigrationFactory
         arguments: [ '@App\Infrastructure\Doctrine\Migrations\Factory\CommandBusAwareMigrationFactory.inner' ]
 
-    App\Infrastructure\CQRS\Bus\CommandBus:
-        class: App\Infrastructure\CQRS\Bus\InMemoryCommandBus
+    App\Infrastructure\CQRS\Command\Bus\CommandBus:
+        class: App\Infrastructure\CQRS\Command\Bus\InMemoryCommandBus
         arguments: [!tagged_iterator app.command_handler]
 
+    App\Infrastructure\CQRS\Query\Bus\QueryBus:
+        class: App\Infrastructure\CQRS\Query\Bus\InMemoryQueryBus
+        arguments: [!tagged_iterator app.query_handler]
+
     App\Infrastructure\ValueObject\String\KernelProjectDir:
-        factory: [ App\Infrastructure\ValueObject\String\KernelProjectDir, 'fromString' ]
+        factory: [ null, 'fromString' ]
         arguments: ['%kernel.project_dir%']
 
     App\Infrastructure\ValueObject\String\PlatformEnvironment:
-        factory: [ App\Infrastructure\ValueObject\String\PlatformEnvironment, 'from' ]
+        factory: [ null, 'from' ]
         arguments: ['%env(string:APP_ENV)%']
 
     App\Infrastructure\Time\Format\DateAndTimeFormat:
-        factory: [ App\Infrastructure\Time\Format\DateAndTimeFormat, 'create' ]
+        factory: [ null, 'create' ]
         arguments: [
-            '%env(enum:App\Infrastructure\Time\Format\DateFormat:DATE_FORMAT)%',
-            '%env(enum:App\Infrastructure\Time\Format\TimeFormat:TIME_FORMAT)%',
+            '@=service("app.config").get("appearance.date_format")',
+            '@=service("app.config").get("appearance.time_format")',
         ]
 
+    App\Infrastructure\ValueObject\Time\SerializableTimezone:
+        factory: [ null, 'fromOptionalString' ]
+        arguments: ['%env(string:TZ)%']
+
     App\Infrastructure\ValueObject\Measurement\UnitSystem:
-        factory: [ 'App\Infrastructure\ValueObject\Measurement\UnitSystem', from ]
-        arguments: [ '%env(string:UNIT_SYSTEM)%' ]
+        factory: [ null, from ]
+        arguments: ['@=service("app.config").get("appearance.unit_system")']
 
     App\Infrastructure\Localisation\Locale:
-        factory: [ App\Infrastructure\Localisation\Locale, 'from' ]
-        arguments: ['%env(string:LOCALE)%']
+        factory: [ null, 'from' ]
+        arguments: ['@=service("app.config").get("appearance.locale")']
 
     League\Flysystem\FilesystemOperator: '@default.storage'
 
     GuzzleHttp\Client:
         class: GuzzleHttp\Client
 
+    app.config:
+        class: App\Domain\App\Config\AppConfig
+
+    App\Domain\App\AppUrl:
+        factory: [ null, 'fromString' ]
+        arguments: ['@=service("app.config").get("general.app_url")']
+
     App\Domain\App\ProfilePictureUrl:
-        factory: [ App\Domain\App\ProfilePictureUrl, 'fromOptionalString' ]
-        arguments: ['%env(string:PROFILE_PICTURE_URL)%']
+        factory: [ null, 'fromOptionalString' ]
+        arguments: ['@=service("app.config").get("general.profile_picture_url")']
 
     App\Domain\Integration\Notification\Ntfy\NtfyUrl:
-        factory: [ App\Domain\Integration\Notification\Ntfy\NtfyUrl, 'fromOptionalString' ]
-        arguments: ['%env(string:NTFY_URL)%']
-
-    App\Domain\Manifest\ManifestAppUrl:
-        factory: [ App\Domain\Manifest\ManifestAppUrl, 'fromString' ]
-        arguments: ['%env(string:MANIFEST_APP_URL)%']
+        factory: [ null, 'fromOptionalString' ]
+        arguments: ['@=service("app.config").get("general.ntfy_url")']
 
     App\Domain\Strava\StravaClientId:
-        factory: [ App\Domain\Strava\StravaClientId, 'fromString' ]
+        factory: [ null, 'fromString' ]
         arguments: ['%env(string:STRAVA_CLIENT_ID)%']
 
     App\Domain\Strava\StravaClientSecret:
-        factory: [ App\Domain\Strava\StravaClientSecret, 'fromString' ]
+        factory: [ null, 'fromString' ]
         arguments: ['%env(string:STRAVA_CLIENT_SECRET)%']
 
     App\Domain\Strava\StravaRefreshToken:
-        factory: [ App\Domain\Strava\StravaRefreshToken, 'fromString' ]
+        factory: [ null, 'fromString' ]
         arguments: ['%env(string:STRAVA_REFRESH_TOKEN)%']
 
     App\Domain\Strava\Athlete\AthleteBirthDate:
-        class: App\Domain\Strava\Athlete\AthleteBirthDate
-        factory: [ App\Domain\Strava\Athlete\AthleteBirthDate, 'fromString' ]
-        arguments: ['%env(string:ATHLETE_BIRTHDAY)%']
+        factory: [ null, 'fromString' ]
+        arguments: ['@=service("app.config").get("general.athlete.birthday")']
 
     App\Domain\Strava\Athlete\MaxHeartRate\MaxHeartRateFormula:
         class: App\Domain\Strava\Athlete\MaxHeartRate\MaxHeartRateFormula
         factory: [ '@App\Domain\Strava\Athlete\MaxHeartRate\MaxHeartRateFormulas', 'determineFormula' ]
-        arguments: ['%env(string:MAX_HEART_RATE_FORMULA)%']
+        arguments: ['@=service("app.config").get("general.athlete.max_heart_rate_formula")']
 
     App\Domain\Strava\Activity\ImportActivities\ActivityVisibilitiesToImport:
-        factory: [ 'App\Domain\Strava\Activity\ImportActivities\ActivityVisibilitiesToImport', from ]
-        arguments: [ '%env(json:ACTIVITY_VISIBILITIES_TO_IMPORT)%' ]
+        factory: [ null, from ]
+        arguments: ['@=service("app.config").get("import.activity_visibilities_to_import")']
 
     App\Domain\Strava\Activity\ImportActivities\NumberOfNewActivitiesToProcessPerImport:
-        factory: [ 'App\Domain\Strava\Activity\ImportActivities\NumberOfNewActivitiesToProcessPerImport', fromInt ]
-        arguments: [ '%env(int:NUMBER_OF_NEW_ACTIVITIES_TO_PROCESS_PER_IMPORT)%' ]
+        factory: [ null, fromInt ]
+        arguments: ['@=service("app.config").get("import.number_of_new_activities_to_process_per_import")']
 
     App\Domain\Strava\Activity\ImportActivities\ActivitiesToSkipDuringImport:
-        factory: [ 'App\Domain\Strava\Activity\ImportActivities\ActivitiesToSkipDuringImport', from ]
-        arguments: [ '%env(json:ACTIVITIES_TO_SKIP_DURING_IMPORT)%' ]
+        factory: [ null, from ]
+        arguments: ['@=service("app.config").get("import.activities_to_skip_during_import")']
 
     App\Domain\Strava\Activity\ImportActivities\SkipActivitiesRecordedBefore:
         class: App\Domain\Strava\Activity\ImportActivities\SkipActivitiesRecordedBefore
-        factory: [ 'App\Domain\Strava\Activity\ImportActivities\SkipActivitiesRecordedBefore', fromOptionalString ]
-        arguments: ['%env(string:SKIP_ACTIVITIES_RECORDED_BEFORE)%']
+        factory: [ null, fromOptionalString ]
+        arguments: ['@=service("app.config").get("import.skip_activities_recorded_before")']
 
     App\Domain\Strava\Activity\SportType\SportTypesToImport:
-        factory: [ 'App\Domain\Strava\Activity\SportType\SportTypesToImport', from ]
-        arguments: [ '%env(json:SPORT_TYPES_TO_IMPORT)%' ]
+        factory: [ null, from ]
 
-    App\Domain\Strava\Athlete\Weight\ImportAthleteWeight\AthleteWeightHistoryFromEnvFile:
-        factory: [ 'App\Domain\Strava\Athlete\Weight\ImportAthleteWeight\AthleteWeightHistoryFromEnvFile', fromString ]
-        arguments: [ '%env(string:fallback:ATHLETE_WEIGHT_HISTORY:ATHLETE_WEIGHTS)%', '@App\Infrastructure\ValueObject\Measurement\UnitSystem']
+        arguments: ['@=service("app.config").get("import.sport_types_to_import")']
 
-    App\Domain\Strava\Ftp\ImportFtp\FtpHistoryFromEnvFile:
-        factory: [ 'App\Domain\Strava\Ftp\ImportFtp\FtpHistoryFromEnvFile', fromString ]
-        arguments: [ '%env(string:fallback:FTP_HISTORY:FTP_VALUES)%' ]
+    App\Domain\Strava\Athlete\Weight\AthleteWeightHistory:
+        factory: [ null, fromArray ]
+        arguments: [
+            '@=service("app.config").get("general.athlete.weight_history")',
+            '@App\Infrastructure\ValueObject\Measurement\UnitSystem'
+        ]
+
+    App\Domain\Strava\Ftp\FtpHistory:
+        factory: [ null, fromArray ]
+        arguments: ['@=service("app.config").get("general.athlete.ftp_history")']
 
     App\Domain\Strava\Gear\Maintenance\GearMaintenanceConfig:
-        factory: [ 'App\Domain\Strava\Gear\Maintenance\GearMaintenanceConfig', fromYmlString ]
-        arguments: ['@=service("App\\Domain\\Strava\\Gear\\Maintenance\\GearMaintenanceConfigFileReader").read()']
+        factory: [ null, fromArray ]
+        arguments: ['@=service("app.config").get("gear_maintenance", [])']
 
     App\Domain\Strava\Gear\Maintenance\Task\Progress\MaintenanceTaskProgressCalculator:
         class: App\Domain\Strava\Gear\Maintenance\Task\Progress\MaintenanceTaskProgressCalculator
         arguments: [!tagged_iterator app.maintenance_progress_calculation]
 
     App\Domain\Zwift\ZwiftLevel:
-        factory: [ 'App\Domain\Zwift\ZwiftLevel', fromOptionalString ]
-        arguments: [ '%env(string:ZWIFT_LEVEL)%' ]
+        factory: [ null, fromOptionalString ]
+        arguments: ['@=service("app.config").get("zwift.level")']
 
     App\Domain\Zwift\ZwiftRacingScore:
-        factory: [ 'App\Domain\Zwift\ZwiftRacingScore', fromOptionalString ]
-        arguments: [ '%env(string:ZWIFT_RACING_SCORE)%' ]
+        factory: [ null, fromOptionalString ]
+        arguments: ['@=service("app.config").get("zwift.racing_score")']

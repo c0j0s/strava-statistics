@@ -3,32 +3,26 @@
 namespace App\Tests\Domain\Strava\Activity;
 
 use App\Domain\Strava\Activity\ActivityIntensity;
+use App\Domain\Strava\Activity\ActivityRepository;
+use App\Domain\Strava\Activity\ActivityWithRawData;
+use App\Domain\Strava\Activity\ActivityWithRawDataRepository;
 use App\Domain\Strava\Athlete\Athlete;
 use App\Domain\Strava\Athlete\AthleteRepository;
 use App\Domain\Strava\Athlete\KeyValueBasedAthleteRepository;
 use App\Domain\Strava\Athlete\MaxHeartRate\MaxHeartRateFormula;
-use App\Domain\Strava\Ftp\DbalFtpRepository;
-use App\Domain\Strava\Ftp\FtpRepository;
-use App\Domain\Strava\Ftp\FtpValue;
+use App\Domain\Strava\Ftp\FtpHistory;
 use App\Infrastructure\KeyValue\KeyValueStore;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Tests\ContainerTestCase;
-use App\Tests\Domain\Strava\Ftp\FtpBuilder;
 
 class ActivityIntensityTest extends ContainerTestCase
 {
     private ActivityIntensity $activityIntensity;
-    private FtpRepository $ftpRepository;
+    private FtpHistory $ftpHistory;
     private AthleteRepository $athleteRepository;
 
     public function testCalculateWithFtp(): void
     {
-        $ftp = FtpBuilder::fromDefaults()
-            ->withSetOn(SerializableDateTime::fromString('2023-04-01'))
-            ->withFtp(FtpValue::fromInt(250))
-            ->build();
-        $this->ftpRepository->save($ftp);
-
         $this->athleteRepository->save(Athlete::create([
             'birthDate' => '1989-08-14',
         ]));
@@ -36,11 +30,17 @@ class ActivityIntensityTest extends ContainerTestCase
         $activity = ActivityBuilder::fromDefaults()
             ->withAveragePower(250)
             ->withMovingTimeInSeconds(3600)
+            ->withStartDateTime(SerializableDateTime::fromString('2023-10-10'))
             ->build();
+
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            $activity,
+            []
+        ));
 
         $this->assertEquals(
             100,
-            $this->activityIntensity->calculate($activity),
+            $this->activityIntensity->calculateForDate(SerializableDateTime::fromString('2023-10-10')),
         );
     }
 
@@ -49,7 +49,13 @@ class ActivityIntensityTest extends ContainerTestCase
         $activity = ActivityBuilder::fromDefaults()
             ->withAverageHeartRate(171)
             ->withMovingTimeInSeconds(3600)
+            ->withStartDateTime(SerializableDateTime::fromString('2023-10-10'))
             ->build();
+
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            $activity,
+            []
+        ));
 
         $this->athleteRepository->save(Athlete::create([
             'birthDate' => '1989-08-14',
@@ -57,22 +63,30 @@ class ActivityIntensityTest extends ContainerTestCase
 
         $this->assertEquals(
             100,
-            $this->activityIntensity->calculate($activity),
+            $this->activityIntensity->calculateForDate(SerializableDateTime::fromString('2023-10-10')),
         );
     }
 
-    public function testCalculateShouldBeNull(): void
+    public function testCalculateShouldBeZero(): void
     {
         $activity = ActivityBuilder::fromDefaults()
             ->withMovingTimeInSeconds(3600)
+            ->withStartDateTime(SerializableDateTime::fromString('2023-10-10'))
+            ->withAverageHeartRate(0)
             ->build();
+
+        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+            $activity,
+            []
+        ));
 
         $this->athleteRepository->save(Athlete::create([
             'birthDate' => '1989-08-14',
         ]));
 
-        $this->assertNull(
-            $this->activityIntensity->calculate($activity),
+        $this->assertEquals(
+            0,
+            $this->activityIntensity->calculateForDate(SerializableDateTime::fromString('2023-10-10')),
         );
     }
 
@@ -81,17 +95,16 @@ class ActivityIntensityTest extends ContainerTestCase
     {
         parent::setUp();
 
-        $this->ftpRepository = new DbalFtpRepository(
-            $this->getConnection()
-        );
+        $this->ftpHistory = FtpHistory::fromArray(['2023-04-01' => 250]);
         $this->athleteRepository = new KeyValueBasedAthleteRepository(
             $this->getContainer()->get(KeyValueStore::class),
             $this->getContainer()->get(MaxHeartRateFormula::class),
         );
 
         $this->activityIntensity = new ActivityIntensity(
+            $this->getContainer()->get(ActivityRepository::class),
             $this->athleteRepository,
-            $this->ftpRepository
+            $this->ftpHistory
         );
     }
 }

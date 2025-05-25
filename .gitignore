@@ -25,8 +25,12 @@ phpstan.neon
 ###< phpstan/phpstan ###
 
 ###> app-build ###
+/config/app/config.yaml
+/config/app/gear-maintenance.yaml
 /build
 /storage
 /cron
 /ollama
+/mercure
+/tests/strava.db
 ###> app-build ###

@@ -10,14 +10,15 @@ use App\Domain\Strava\Activity\ActivityWithRawData;
 use App\Domain\Strava\Activity\ActivityWithRawDataRepository;
 use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Activity\SportType\SportTypesToImport;
+use App\Domain\Strava\Activity\WorkoutType;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Strava;
 use App\Domain\Strava\StravaDataImportStatus;
 use App\Domain\Weather\OpenMeteo\OpenMeteo;
 use App\Domain\Weather\OpenMeteo\Weather;
-use App\Infrastructure\CQRS\Command;
-use App\Infrastructure\CQRS\CommandHandler;
+use App\Infrastructure\CQRS\Command\Command;
+use App\Infrastructure\CQRS\Command\CommandHandler;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Geocoding\Nominatim\Nominatim;
 use App\Infrastructure\ValueObject\Geography\Coordinate;
@@ -122,7 +123,8 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                     ->updateGear(
                         $gearId,
                         $gearId ? $allGears->getByGearId($gearId)?->getName() : null
-                    );
+                    )
+                    ->updateWorkoutType(WorkoutType::fromStravaInt($stravaActivity['workout_type'] ?? null));
 
                 if (array_key_exists('commute', $stravaActivity)) {
                     $activity->updateCommute($stravaActivity['commute']);
@@ -135,7 +137,11 @@ final readonly class ImportActivitiesCommandHandler implements CommandHandler
                 }
 
                 try {
-                    if (0 === $activity->getTotalImageCount() && ($stravaActivity['total_photo_count'] ?? 0) > 0) {
+                    if (!$newTotalImageCount = ($stravaActivity['total_photo_count'] ?? 0)) {
+                        // New image count is 0, remove all images.
+                        $activity->updateLocalImagePaths([]);
+                    }
+                    if ($activity->getTotalImageCount() !== $newTotalImageCount && $newTotalImageCount > 0) {
                         // Activity got updated and images were uploaded, import them.
                         if ($fileSystemPaths = $this->activityImageDownloader->downloadImages($activity->getId())) {
                             $activity->updateLocalImagePaths(array_map(

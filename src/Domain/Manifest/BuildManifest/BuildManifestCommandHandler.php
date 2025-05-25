@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Domain\Manifest\BuildManifest;
 
-use App\Domain\Manifest\ManifestAppUrl;
+use App\Domain\App\AppUrl;
 use App\Domain\Strava\Athlete\AthleteRepository;
-use App\Infrastructure\CQRS\Command;
-use App\Infrastructure\CQRS\CommandHandler;
+use App\Infrastructure\CQRS\Command\Command;
+use App\Infrastructure\CQRS\Command\CommandHandler;
 use League\Flysystem\FilesystemOperator;
 
 final readonly class BuildManifestCommandHandler implements CommandHandler
 {
     public function __construct(
         private AthleteRepository $athleteRepository,
-        private ManifestAppUrl $manifestAppUrl,
+        private AppUrl $appUrl,
         private FilesystemOperator $publicStorage,
     ) {
     }
@@ -27,7 +27,8 @@ final readonly class BuildManifestCommandHandler implements CommandHandler
 
         $manifest = $this->publicStorage->read('manifest.json');
         $manifest = str_replace('[APP_NAME]', sprintf('Statistics for Strava | %s', $athlete->getName()), $manifest);
-        $manifest = str_replace('[APP_HOST]', (string) $this->manifestAppUrl, $manifest);
+        $manifest = str_replace('[APP_HOST]', (string) $this->appUrl, $manifest);
+        $manifest = str_replace('[APP_BASE_PATH]', $this->appUrl->getBasePath() ?? '', $manifest);
 
         $this->publicStorage->write('manifest.json', $manifest);
     }

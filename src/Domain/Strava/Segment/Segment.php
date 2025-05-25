@@ -29,6 +29,8 @@ final class Segment
         private readonly float $maxGradient,
         #[ORM\Column(type: 'boolean')]
         private readonly bool $isFavourite,
+        #[ORM\Column(type: 'integer', nullable: true)]
+        private readonly ?int $climbCategory,
         #[ORM\Column(type: 'string', nullable: true)]
         private readonly ?string $deviceName,
     ) {
@@ -41,6 +43,7 @@ final class Segment
         Kilometer $distance,
         float $maxGradient,
         bool $isFavourite,
+        ?int $climbCategory,
         ?string $deviceName,
     ): self {
         return new self(
@@ -50,7 +53,8 @@ final class Segment
             distance: $distance,
             maxGradient: $maxGradient,
             isFavourite: $isFavourite,
-            deviceName: $deviceName
+            climbCategory: $climbCategory,
+            deviceName: $deviceName,
         );
     }
 
@@ -61,6 +65,7 @@ final class Segment
         Kilometer $distance,
         float $maxGradient,
         bool $isFavourite,
+        ?int $climbCategory,
         ?string $deviceName,
     ): self {
         return new self(
@@ -70,7 +75,8 @@ final class Segment
             distance: $distance,
             maxGradient: $maxGradient,
             isFavourite: $isFavourite,
-            deviceName: $deviceName
+            climbCategory: $climbCategory,
+            deviceName: $deviceName,
         );
     }
 
@@ -188,6 +194,11 @@ final class Segment
         ]);
     }
 
+    public function getClimbCategory(): ?int
+    {
+        return $this->climbCategory;
+    }
+
     public function isKOM(): bool
     {
         $komSegmentIds = [
@@ -237,8 +248,22 @@ final class Segment
             21747822,
             21747891,
             18389384,
+            21705871,
+            19975123,
+            19975123,
+            19610530,
+            19976280,
+            19631579,
+            1269095,
+            19974951,
+            20023906,
+            19631565,
         ];
 
-        return in_array((int) $this->getId()->toUnprefixedString(), $komSegmentIds);
+        if (in_array((int) $this->getId()->toUnprefixedString(), $komSegmentIds)) {
+            return true;
+        }
+
+        return $this->getClimbCategory() > 0;
     }
 }

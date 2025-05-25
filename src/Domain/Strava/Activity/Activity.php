@@ -106,7 +106,7 @@ final class Activity
         #[ORM\Column(type: 'boolean', nullable: true)]
         private bool $isCommute,
         #[ORM\Column(type: 'string', nullable: true)]
-        private readonly ?WorkoutType $workoutType,
+        private ?WorkoutType $workoutType,
     ) {
     }
 
@@ -328,7 +328,10 @@ final class Activity
      */
     public function getLocalImagePaths(): array
     {
-        return $this->localImagePaths;
+        return array_map(
+            fn (string $path) => str_starts_with($path, '/') ? $path : '/'.$path,
+            $this->localImagePaths
+        );
     }
 
     /**
@@ -474,6 +477,11 @@ final class Activity
         return $this->movingTimeInSeconds;
     }
 
+    public function getMovingTimeInHours(): float
+    {
+        return round($this->movingTimeInSeconds / 3600, 1);
+    }
+
     public function updateMovingTimeInSeconds(int $movingTimeInSeconds): self
     {
         $this->movingTimeInSeconds = $movingTimeInSeconds;
@@ -523,6 +531,13 @@ final class Activity
     public function getWorkoutType(): ?WorkoutType
     {
         return $this->workoutType;
+    }
+
+    public function updateWorkoutType(?WorkoutType $workoutType): self
+    {
+        $this->workoutType = $workoutType;
+
+        return $this;
     }
 
     public function getCarbonSaved(): Kilogram

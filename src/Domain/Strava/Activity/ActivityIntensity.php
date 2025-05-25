@@ -5,18 +5,45 @@ declare(strict_types=1);
 namespace App\Domain\Strava\Activity;
 
 use App\Domain\Strava\Athlete\AthleteRepository;
-use App\Domain\Strava\Ftp\FtpRepository;
+use App\Domain\Strava\Ftp\FtpHistory;
 use App\Infrastructure\Exception\EntityNotFound;
+use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
-final readonly class ActivityIntensity
+final class ActivityIntensity
 {
+    /** @var array<string, int|null> */
+    public static array $cachedIntensities = [];
+
     public function __construct(
-        private AthleteRepository $athleteRepository,
-        private FtpRepository $ftpRepository,
+        private readonly ActivityRepository $activityRepository,
+        private readonly AthleteRepository $athleteRepository,
+        private readonly FtpHistory $ftpHistory,
     ) {
     }
 
-    public function calculate(Activity $activity): ?int
+    public function calculateForDate(SerializableDateTime $on): int
+    {
+        $cacheKey = $on->format('Y-m-d');
+        if (array_key_exists($cacheKey, self::$cachedIntensities) && null !== self::$cachedIntensities[$cacheKey]) {
+            return self::$cachedIntensities[$cacheKey];
+        }
+
+        $activities = $this->activityRepository->findAll()->filterOnDate($on);
+        self::$cachedIntensities[$cacheKey] = 0;
+
+        /** @var Activity $activity */
+        foreach ($activities as $activity) {
+            if (!$intensity = $this->calculateForActivity($activity)) {
+                continue;
+            }
+
+            self::$cachedIntensities[$cacheKey] += $intensity;
+        }
+
+        return self::$cachedIntensities[$cacheKey];
+    }
+
+    private function calculateForActivity(Activity $activity): ?int
     {
         $athlete = $this->athleteRepository->find();
         try {
@@ -24,7 +51,7 @@ final readonly class ActivityIntensity
             // 1) Max and average heart rate
             // OR
             // 2) FTP and average power
-            $ftp = $this->ftpRepository->find($activity->getStartDate())->getFtp();
+            $ftp = $this->ftpHistory->find($activity->getStartDate())->getFtp();
             if ($averagePower = $activity->getAveragePower()) {
                 // Use more complicated and more accurate calculation.
                 // intensityFactor = averagePower / FTP

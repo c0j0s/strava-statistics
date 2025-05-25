@@ -10,8 +10,9 @@ use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Gear\Gears;
 use App\Domain\Strava\Gear\Maintenance\GearMaintenanceConfig;
 use App\Domain\Strava\Gear\Maintenance\Task\MaintenanceTaskTagRepository;
-use App\Infrastructure\CQRS\Command;
-use App\Infrastructure\CQRS\CommandHandler;
+use App\Domain\Strava\Gear\Maintenance\Task\Progress\MaintenanceTaskProgressCalculator;
+use App\Infrastructure\CQRS\Command\Command;
+use App\Infrastructure\CQRS\Command\CommandHandler;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -22,6 +23,7 @@ final readonly class BuildGearMaintenanceHtmlCommandHandler implements CommandHa
         private GearMaintenanceConfig $gearMaintenanceConfig,
         private MaintenanceTaskTagRepository $maintenanceTaskTagRepository,
         private GearRepository $gearRepository,
+        private MaintenanceTaskProgressCalculator $maintenanceTaskProgressCalculator,
         private FilesystemOperator $gearMaintenanceStorage,
         private Environment $twig,
         private FilesystemOperator $buildStorage,
@@ -34,7 +36,7 @@ final readonly class BuildGearMaintenanceHtmlCommandHandler implements CommandHa
         assert($command instanceof BuildGearMaintenanceHtml);
         if (!$this->gearMaintenanceConfig->isFeatureEnabled()) {
             $this->buildStorage->write(
-                'gear-maintenance.html',
+                'gear/maintenance.html',
                 $this->twig->load('html/gear/gear-maintenance-disabled.html.twig')->render()
             );
 
@@ -114,13 +116,21 @@ final readonly class BuildGearMaintenanceHtmlCommandHandler implements CommandHa
         }
 
         $this->buildStorage->write(
-            'gear-maintenance.html',
+            'gear/maintenance.html',
             $this->twig->load('html/gear/gear-maintenance.html.twig')->render([
                 'errors' => $errors,
                 'warnings' => $warnings,
                 'gearsAttachedToComponents' => $gearsAttachedToComponents,
                 'gearComponents' => $this->gearMaintenanceConfig->getGearComponents(),
                 'maintenanceTaskTags' => $maintenanceTaskTags->filterOnValid(),
+                'gearIdsThatHaveDueTasks' => $this->maintenanceTaskProgressCalculator->getGearIdsThatHaveDueTasks(),
+            ])
+        );
+
+        $this->buildStorage->write(
+            'gear/info.html',
+            $this->twig->load('html/gear/gear-info.html.twig')->render([
+                'gears' => $gears,
             ])
         );
     }

@@ -13,8 +13,8 @@ use App\Domain\Strava\Activity\Image\ImageRepository;
 use App\Domain\Strava\Athlete\AthleteRepository;
 use App\Domain\Strava\Challenge\ChallengeRepository;
 use App\Domain\Strava\Gear\Maintenance\Task\Progress\MaintenanceTaskProgressCalculator;
-use App\Infrastructure\CQRS\Command;
-use App\Infrastructure\CQRS\CommandHandler;
+use App\Infrastructure\CQRS\Command\Command;
+use App\Infrastructure\CQRS\Command\CommandHandler;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Measurement\UnitSystem;
 use League\Flysystem\FilesystemOperator;
@@ -76,7 +76,7 @@ final readonly class BuildIndexHtmlCommandHandler implements CommandHandler
                 'lastUpdate' => $command->getCurrentDateTime(),
                 'athlete' => $athlete,
                 'profilePictureUrl' => $this->profilePictureUrl,
-                'maintenanceTaskIsDue' => $this->maintenanceTaskProgressCalculator->calculateIfATaskIsDue(),
+                'maintenanceTaskIsDue' => !$this->maintenanceTaskProgressCalculator->getGearIdsThatHaveDueTasks()->isEmpty(),
                 'javascriptWindowConstants' => Json::encode([
                     'countries' => Countries::getNames($this->localeSwitcher->getLocale()),
                     'unitSystem' => [

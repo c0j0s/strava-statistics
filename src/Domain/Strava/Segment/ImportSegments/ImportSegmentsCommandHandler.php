@@ -13,8 +13,8 @@ use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortId;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortRepository;
 use App\Domain\Strava\Segment\SegmentId;
 use App\Domain\Strava\Segment\SegmentRepository;
-use App\Infrastructure\CQRS\Command;
-use App\Infrastructure\CQRS\CommandHandler;
+use App\Infrastructure\CQRS\Command\Command;
+use App\Infrastructure\CQRS\Command\CommandHandler;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Infrastructure\ValueObject\String\Name;
@@ -59,6 +59,7 @@ final readonly class ImportSegmentsCommandHandler implements CommandHandler
                     distance: Meter::from($activitySegment['distance'])->toKilometer(),
                     maxGradient: $activitySegment['maximum_grade'],
                     isFavourite: isset($activitySegment['starred']) && $activitySegment['starred'],
+                    climbCategory: $activitySegment['climb_category'] ?? null,
                     deviceName: $activity->getDeviceName(),
                 );
 
