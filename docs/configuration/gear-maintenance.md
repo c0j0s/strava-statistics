@@ -15,7 +15,7 @@ Keep track of your gear and stay on top of maintenance tasks with our **Gear Mai
 * It then calculates the usage of each attached component and updates the progress automatically.
 * If the Strava activity title contains one of the configured hashtags, the app will reset the maintenance task and counters from the next activity onwards and will start re-tracking from 0 again.
 
-[include](../assets/gear-maintenance.mp4 ':include :type=video controls width=100%')
+[Gear maintenance](https://www.youtube.com/embed/mYFmIFgUIYU ':include :type=iframe width=100% height=400px title="Statistics for Strava" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen')
 
 ## Setup
 
@@ -32,12 +32,6 @@ services:
 ```
 
 * Create a new file `gear-maintenance.yaml` in `./config`
-* Add the following to your YAML config:
-
-```yaml
-enabled: true
-hashtagPrefix: 'sfs'
-```
 
 ## Example
 
@@ -78,12 +72,17 @@ components:
           # - hours (every x hours used),
           # - days (every x days),
           unit: km
+# If you don't want to reference images, set gears to an empty array: `gears: []`       
 gears:
   # Optional reference to an image. Will be used in the UI.
-  # The image must be in the same directory as this config file.
+  # The image must be located in the `storage/gear-maintenance` volume.
   - gearId: 'gxxxxxxxx'
     imgSrc: 'gear1.png'
 ```
+
+<div class="alert important">
+After each change to these values, you need to run the <i>app:strava:import-data</i> command again for the changes to take effect
+</div>
 
 ## Components
 

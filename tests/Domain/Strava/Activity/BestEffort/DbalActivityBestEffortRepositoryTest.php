@@ -4,6 +4,7 @@ namespace App\Tests\Domain\Strava\Activity\BestEffort;
 
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityIds;
+use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Activity\ActivityType;
 use App\Domain\Strava\Activity\ActivityWithRawData;
 use App\Domain\Strava\Activity\ActivityWithRawDataRepository;
@@ -152,11 +153,42 @@ class DbalActivityBestEffortRepositoryTest extends ContainerTestCase
         );
     }
 
+    public function testDeleteForActivity(): void
+    {
+        $this->activityBestEffortRepository->add(ActivityBestEffortBuilder::fromDefaults()
+            ->withDistanceInMeter(Meter::from(10000))
+            ->withActivityId(ActivityId::fromUnprefixed('test'))
+            ->build());
+
+        $this->activityBestEffortRepository->add(ActivityBestEffortBuilder::fromDefaults()
+            ->withDistanceInMeter(Meter::from(1000))
+            ->withActivityId(ActivityId::fromUnprefixed('test'))
+            ->build());
+
+        $this->activityBestEffortRepository->add(ActivityBestEffortBuilder::fromDefaults()
+            ->withDistanceInMeter(Meter::from(000))
+            ->withActivityId(ActivityId::fromUnprefixed('test'))
+            ->build());
+
+        $this->activityBestEffortRepository->add(ActivityBestEffortBuilder::fromDefaults()
+            ->withDistanceInMeter(Meter::from(10000))
+            ->withActivityId(ActivityId::fromUnprefixed('test2'))
+            ->build());
+
+        $this->activityBestEffortRepository->deleteForActivity(ActivityId::fromUnprefixed('test'));
+
+        $this->assertEquals(
+            1,
+            $this->getConnection()->executeQuery('SELECT COUNT(*) FROM ActivityBestEffort')->fetchOne()
+        );
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->activityBestEffortRepository = new DbalActivityBestEffortRepository(
-            $this->getConnection()
+            $this->getConnection(),
+            $this->getContainer()->get(ActivityRepository::class)
         );
     }
 }

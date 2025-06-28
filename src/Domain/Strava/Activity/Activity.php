@@ -5,6 +5,7 @@ namespace App\Domain\Strava\Activity;
 use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Activity\Stream\PowerOutput;
 use App\Domain\Strava\Activity\Stream\PowerOutputs;
+use App\Domain\Strava\CouldNotDetermineLeafletMap;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\LeafletMap;
 use App\Domain\Weather\OpenMeteo\Weather;
@@ -56,7 +57,7 @@ final class Activity
         #[ORM\Column(type: 'datetime_immutable')]
         private readonly SerializableDateTime $startDateTime,
         #[ORM\Column(type: 'string')]
-        private readonly SportType $sportType,
+        private SportType $sportType,
         #[ORM\Column(type: 'string')]
         private string $name,
         #[ORM\Column(type: 'string', nullable: true)]
@@ -237,6 +238,13 @@ final class Activity
     public function getSportType(): SportType
     {
         return $this->sportType;
+    }
+
+    public function updateSportType(SportType $sportType): self
+    {
+        $this->sportType = $sportType;
+
+        return $this;
     }
 
     public function getStartingCoordinate(): ?Coordinate
@@ -576,7 +584,13 @@ final class Activity
             return null;
         }
 
-        return LeafletMap::forZwiftStartingCoordinate($startingCoordinate);
+        try {
+            return LeafletMap::forZwiftStartingCoordinate($startingCoordinate);
+        } catch (CouldNotDetermineLeafletMap) {
+            // Very old Zwift activities have routes that we don't have corresponding maps for.
+        }
+
+        return null;
     }
 
     public function getLocation(): ?Location

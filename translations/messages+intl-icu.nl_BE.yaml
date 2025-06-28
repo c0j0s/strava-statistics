@@ -3,7 +3,6 @@
 '-10 to 0: Accumulated fatigue. Recovery in progress. Suitable for light/technical training.': '-10 to 0: Accumulated fatigue. Recovery in progress. Suitable for light/technical training.'
 '0 to +10: Slightly fresh. Transitional; brief is best': '0 to +10: Slightly fresh. Transitional; brief is best'
 '0.8-1.3: Safe training zone': '0.8-1.3: Safe training zone'
-'2 days of activity for 4 weeks': '2 actieve dagen gedurende 4 weken'
 '42-day fitness trend': '42-day fitness trend'
 '7-day fatigue level': '7-day fatigue level'
 '< 0.8: Potential detraining': '< 0.8: Potential detraining'
@@ -25,7 +24,6 @@ Activities: Activiteiten
 'Adaptive & Inclusive Sports': 'Adaptive & Inclusive Sports'
 Advanced: Gevorderd
 Afternoon: Namiddag
-'All activities': 'Alle activiteiten'
 'All time': 'All time'
 'Alpine Ski': 'Alpine Ski'
 Apr: Apr
@@ -35,6 +33,7 @@ Avg: Gem
 Badminton: Badminton
 Best: Beste
 'Best Efforts': 'Best Efforts'
+'Best efforts for {sportType}': 'Best efforts for {sportType}'
 'Build zone (–10)': 'Build zone (–10)'
 'CTL (Fitness)': 'CTL (Fitness)'
 Cadence: Cadans
@@ -44,17 +43,12 @@ Canoeing: Kanoën
 'Challenge consistency': 'Challenge consistentie'
 Challenges: Challenges
 'Chronic Training Load (Fitness) - 42-day exponentially weighted average of your daily training load. Represents long-term training adaptation.': 'Chronic Training Load (Fitness) - 42-day exponentially weighted average of your daily training load. Represents long-term training adaptation.'
-'Climb a total of 2000m': 'Klim in totaal 2000m'
-'Climb a total of 7500m': 'Klim in totaal 7500m'
 'Close modal': Sluiten
+'Collapse sidebar': 'Collapse sidebar'
 Commutes: Commutes
 'Commutes only': 'Commutes only'
 Compare: Compare
 'Compare to': 'Compare to'
-'Complete a 10 km run.': 'Voltooi een 10 km loop workout.'
-'Complete a 100km ride': 'Voltooi een 100km rit'
-'Complete a 5 km run.': 'Voltooi een 5 km loop workout.'
-'Complete a half marathon run.': 'Loop een halve marathon.'
 Components: Components
 Crossfit: Crossfit
 'Custom gear disabled': 'Custom gear disabled'
@@ -65,6 +59,7 @@ Dashboard: Dashboard
 'Daytime stats': 'Daytime statistieken'
 Dec: Dec
 'Detailed instructions are available in the documentation on': 'Detailed instructions are available in the documentation on'
+Details: Details
 Device: Apparaat
 Distance: Afstand
 'Distance / week': 'Afstand / week'
@@ -138,6 +133,8 @@ Jun: Jun
 KOM: KOM
 Kayaking: Kajakken
 'Kite Surf': 'Kite Surf'
+Lap: Lap
+Laps: Laps
 'Last 45 days': 'Last 45 days'
 'Last 7 days training load': 'Last 7 days training load'
 'Last 90 days': 'Last 90 days'
@@ -188,6 +185,7 @@ Other: Other
 'Over-fatigued (–30)': 'Over-fatigued (–30)'
 'Over-fatigued – risk of injury or burnout, extra recovery needed': 'Over-fatigued – risk of injury or burnout, extra recovery needed'
 'Overall weekly training stress': 'Overall weekly training stress'
+'PB badges': 'PB badges'
 PRs: PRs
 'PRs achieved per month': 'PRs achieved per month'
 Pace: Pace
@@ -212,14 +210,10 @@ Race: Race
 'Rest days vs. active days': 'Rest days vs. active days'
 Rewind: Rewind
 'Rewind comparisons are only available on larger screens.': 'Rewind comparisons are only available on larger screens.'
-'Ride a total of 1250km': 'Rijd in totaal 1250km'
-'Ride a total of 200km': 'Rijd in totaal 200km'
-'Ride a total of 600km': 'Rijd in totaal 600km'
 Rides: Ritten
 'Rock Climbing': Bergbeklimmen
 'Roller Ski': 'Roller Ski'
 Rowing: Roeien
-'Run a total of 100km.': 'Loop in totaal 100km.'
 Runs: Hardlopen
 Sail: Zeilen
 Sat: Zat
@@ -241,6 +235,7 @@ Soccer: Voetbal
 Socials: Socials
 Source: Source
 Speed: Snelheid
+Splits: Splits
 Squash: Squash
 'Stair Stepper': 'Stair Stepper'
 'Stand Up Paddling': 'Stand Up Paddling'
@@ -263,7 +258,7 @@ Tennis: Tennis
 "That's a daily average of {dailyAverage}, a weekly average of {weeklyAverage} and a monthly average of {monthlyAverage} 🐣.": 'Dat is een dagelijks gemiddelde van {dailyAverage}, een wekelijks gemiddelde van {weeklyAverage} en een maandelijks gemiddelde van {monthlyAverage} 🐣.'
 'The Eddington number in the context of cycling or running is defined as the maximum number E such that the athlete has covered at least E km on at least E days.': 'Het Eddington-getal in de context van fietsen of hardlopen is gedefinieerd als het maximale aantal E zodanig dat de atleet ten minste E km heeft afgelegd op ten minste E dagen.'
 'The amount of CO₂ that {amountOfTrees} trees absorb annually': 'The amount of CO₂ that {amountOfTrees} trees absorb annually'
-'This badge is dynamically created. You can use it in any &lt;img&gt; tag': 'This badge is dynamically created. You can use it in any &lt;img&gt; tag'
+'These badges are dynamically created. You can use them in any &lt;img&gt; tag': 'These badges are dynamically created. You can use them in any &lt;img&gt; tag'
 'This feature is currently disabled': 'This feature is currently disabled'
 'This formula means that riding for an hour at your max heart rate results in a score of 100, which we consider "high intensity"': 'Deze formule betekent dat een uur fietsen op je maximale hartslag resulteert in een score van 100, wat we beschouwen als “hoge intensiteit”'
 'This map shows the daily training intensity for the last year. The training intensity for an activity is calculated based on several metrics.': 'Deze kaart toont de dagelijkse trainingsintensiteit van het afgelopen jaar. De trainingsintensiteit voor een activiteit wordt berekend op basis van verschillende meetgegevens.'
@@ -295,6 +290,7 @@ Tue: Di
 Tuesday: Dinsdag
 Unspecified: Unspecified
 'Updated on': 'Bijgewerkt op'
+'User badge': 'User badge'
 'Velo Mobiles': 'Velo Mobiles'
 'Very fresh – possible detraining': 'Very fresh – possible detraining'
 'Very high': 'Heel hoog'
@@ -325,6 +321,7 @@ Yoga: Yoga
 'You have not recorded any activities in the previous years.': 'You have not recorded any activities in the previous years.'
 "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍": "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍"
 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to': 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to'
+'Your PB badge': 'Your PB badge'
 'Your Strava badge': 'Your Strava badge'
 'Your Strava {year} rewind will be available on the 24th of December.': 'Your Strava {year} rewind will be available on the 24th of December.'
 'Your Zwift badge': 'Your Zwift badge'
@@ -335,6 +332,7 @@ Yoga: Yoga
 'Zone 4 (anaerobic)': 'Zone 4 (anaerobic)'
 'Zone 5 (maximal)': 'Zone 5 (maximal)'
 'Zwift Statistics': 'Zwift Statistics'
+'Zwift badge': 'Zwift badge'
 activities: activities
 age: leeftijd
 and: and
