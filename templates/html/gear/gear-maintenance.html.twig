@@ -1,21 +1,16 @@
-{% extends "html/base.html.twig" %}
-
-{% block breadcrumbs %}
-    <li>
-        <div class="flex items-center">
-            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-            <a href="#" data-router-navigate="{{ relativeUrl('gear-stats') }}" class="ml-1 text-gray-700 hover:text-primary-600 md:ml-2">{{ "Gear"|trans }}</a>
-        </div>
-    </li>
-    <li>
-        <div class="flex items-center">
-            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-            <a href="#" data-router-navigate="{{ relativeUrl('gear/maintenance') }}" class="ml-1 text-gray-700 hover:text-primary-600 md:ml-2">{{ "Maintenance"|trans }}</a>
-        </div>
-    </li>
-{% endblock %}
+{% include 'html/component/breadcrumbs.html.twig' with {'breadcrumbs': [
+    {
+        'url': 'gear',
+        'label': 'Gear'|trans
+    },
+    {
+        'url': 'gear/maintenance',
+        'label': 'Maintenance'|trans
+    }]} %}
 {% block content %}
     {% autoescape false %}
+        <!-- GEAR SUB MENU -->
+        {% include 'html/gear/gear-sub-menu.html.twig' with {activeMenuItem: 'gearMaintenance', maintenanceTaskIsDue: not gearIdsThatHaveDueTasks.isEmpty()} %}
         <div class="grid grid-cols-1 gap-4">
             <div class="mb-4 p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
                 <div class="flex items-center justify-between">
@@ -75,7 +70,7 @@
                             </th>
                             <th scope="col" class="px-6 py-3">
                                 <div class="flex items-center justify-center">
-                                    {{ renderSvg('distance') }}
+                                    {{ svg('distance') }}
                                 </div>
                             </th>
                             <th scope="col" class="px-6 py-3">
@@ -102,7 +97,7 @@
                                 </td>
                                 <td class="py-2">
                                     <img class="w-auto h-8 rounded-sm object-cover lazy"
-                                         src="{{ renderComponent('placeholder-image') }}"
+                                         src="{{ placeholderImage() }}"
                                          data-src="{{ gear.getImageSrc() }}"
                                          alt="{{ gear.getName() }}"/>
                                 </td>
@@ -115,7 +110,7 @@
                                     </div>
                                 </th>
                                 <td class="px-6 py-2 truncate">
-                                    {{ renderComponent('measurement', {'measurement': gear.getDistance(), 'precision': 0}) }}
+                                    {{ gear.getDistance()|renderMeasurement(0) }}
                                 </td>
                                 <td class="px-6 py-2 truncate">
                                     {{ componentsAttachedToGear|map(component => component.getLabel())|join(', ') }}
@@ -128,9 +123,9 @@
                                     <div class="grid gap-2">
                                         {% for gearComponent in componentsAttachedToGear %}
                                             <div class="flex items-center bg-white border border-gray-200 rounded-lg shadow-sm">
-                                                <div class="w-48 h-full">
-                                                    <img class="lazy object-cover w-full h-full rounded-t-lg md:rounded-none md:rounded-s-lg"
-                                                         src="{{ renderComponent('placeholder-image') }}"
+                                                <div class="relative w-48 h-full">
+                                                    <img class="absolute inset-0 lazy object-cover w-full h-full rounded-t-lg md:rounded-none md:rounded-s-lg"
+                                                         src="{{ placeholderImage() }}"
                                                          data-src="{{ relativeUrl('/gear-maintenance/' ~ gearComponent.getImgSrc()) }}"
                                                          alt="{{ gearComponent.getLabel() }}">
                                                 </div>

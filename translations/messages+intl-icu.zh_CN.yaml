@@ -3,7 +3,6 @@
 '-10 to 0: Accumulated fatigue. Recovery in progress. Suitable for light/technical training.': '-10 to 0: Accumulated fatigue. Recovery in progress. Suitable for light/technical training.'
 '0 to +10: Slightly fresh. Transitional; brief is best': '0 to +10: Slightly fresh. Transitional; brief is best'
 '0.8-1.3: Safe training zone': '0.8-1.3: Safe training zone'
-'2 days of activity for 4 weeks': 4周内2天的活动
 '42-day fitness trend': '42-day fitness trend'
 '7-day fatigue level': '7-day fatigue level'
 '< 0.8: Potential detraining': '< 0.8: Potential detraining'
@@ -25,7 +24,6 @@ Activities: 活动
 'Adaptive & Inclusive Sports': 适应性和包容性运动
 Advanced: 高级公式
 Afternoon: 下午
-'All activities': 所有活动
 'All time': 所有时间
 'Alpine Ski': 高山滑雪
 Apr: 四月
@@ -35,36 +33,37 @@ Avg: 平均
 Badminton: 羽毛球
 Best: 最佳
 'Best Efforts': 最大努力
+'Best effort': 'Best effort'
+'Best efforts for {sportType}': 'Best efforts for {sportType}'
 'Build zone (–10)': 'Build zone (–10)'
 'CTL (Fitness)': 'CTL (Fitness)'
 Cadence: 踏频
 Calories: 卡路里
+'Calories burnt': 'Calories burnt'
 Canoeing: 划独木舟
 'Carbon emission comparisons': 碳排放比较
 'Challenge consistency': 挑战一致性
 Challenges: 挑战
 'Chronic Training Load (Fitness) - 42-day exponentially weighted average of your daily training load. Represents long-term training adaptation.': 'Chronic Training Load (Fitness) - 42-day exponentially weighted average of your daily training load. Represents long-term training adaptation.'
-'Climb a total of 2000m': 总共攀登2000米
-'Climb a total of 7500m': 总共攀登7500米
 'Close modal': 关闭模态框
+'Collapse sidebar': 'Collapse sidebar'
 Commutes: 通勤
 'Commutes only': 仅通勤
 Compare: Compare
 'Compare to': 'Compare to'
-'Complete a 10 km run.': 完成10公里跑步。
-'Complete a 100km ride': 完成100公里骑行
-'Complete a 5 km run.': 完成5公里跑步。
-'Complete a half marathon run.': 完成半马。
 Components: Components
+'Congrats! You achieved personal bests during this activity.': 'Congrats! You achieved personal bests during this activity.'
 Crossfit: 交叉健身
 'Custom gear disabled': 'Custom gear disabled'
 'Daily TRIMP': 'Daily TRIMP'
 'Daily activities': 'Daily activities'
 Dashboard: 仪表板
+Date: Date
 'Days needed': 所需天数
 'Daytime stats': 时间段统计
 Dec: 十二月
 'Detailed instructions are available in the documentation on': 'Detailed instructions are available in the documentation on'
+Details: Details
 Device: 设备
 Distance: 距离
 'Distance / week': 每周距离
@@ -85,6 +84,7 @@ Elliptical: 椭圆机
 Evening: 晚上
 'Excludes commutes': 筛除通勤
 'FTP history': FTP历史
+'Fastest times': 'Fastest times'
 'Fatigued – productive heavy-training range': 'Fatigued – productive heavy-training range'
 Favourite: 收藏夹
 Feb: 二月
@@ -138,6 +138,8 @@ Jun: 六月
 KOM: 赛段王
 Kayaking: 皮划艇
 'Kite Surf': 风筝冲浪
+Lap: Lap
+Laps: Laps
 'Last 45 days': 最近45天
 'Last 7 days training load': 'Last 7 days training load'
 'Last 90 days': 最近90天
@@ -156,6 +158,7 @@ Low: 低
 Maintenance: Maintenance
 Mar: 三月
 Max: 最大
+'Max gradient': 'Max gradient'
 May: 五月
 Medium: 中等
 Metrics: Metrics
@@ -180,6 +183,7 @@ Night: 夜晚
 'Nordic Ski': 北欧滑雪
 Nov: 十一月
 'Number of activities per month': 'Number of activities per month'
+'Number of times completed': 'Number of times completed'
 Oct: 十月
 'One of your gear maintenance tasks is due': 'One of your gear maintenance tasks is due'
 'Optimal training range': 'Optimal training range'
@@ -188,6 +192,7 @@ Other: 其他
 'Over-fatigued (–30)': 'Over-fatigued (–30)'
 'Over-fatigued – risk of injury or burnout, extra recovery needed': 'Over-fatigued – risk of injury or burnout, extra recovery needed'
 'Overall weekly training stress': 'Overall weekly training stress'
+'PB badges': 'PB badges'
 PRs: PRs
 'PRs achieved per month': 'PRs achieved per month'
 Pace: 步速
@@ -206,20 +211,17 @@ Race: 比赛
 'Racing Score': 赛车成绩
 'Racquet & Paddle Sports': 球拍和桨类运动
 'Racquet Ball': 壁球
+Ranking: Ranking
 'Rest Days': 'Rest Days'
 'Rest days': 'Rest days'
 'Rest days in last 7 days': 'Rest days in last 7 days'
 'Rest days vs. active days': 'Rest days vs. active days'
 Rewind: Rewind
 'Rewind comparisons are only available on larger screens.': 'Rewind comparisons are only available on larger screens.'
-'Ride a total of 1250km': 骑行总计1250公里
-'Ride a total of 200km': 骑行总计200公里
-'Ride a total of 600km': 骑行总计600公里
 Rides: 骑行
 'Rock Climbing': 攀岩
 'Roller Ski': 轮滑
 Rowing: 划船
-'Run a total of 100km.': 跑步总计100公里。
 Runs: 跑步
 Sail: 帆船
 Sat: 周六
@@ -241,6 +243,7 @@ Soccer: 足球
 Socials: Socials
 Source: 来源
 Speed: 速度
+Splits: Splits
 Squash: 壁球
 'Stair Stepper': 楼梯机
 'Stand Up Paddling': 站立划桨
@@ -263,7 +266,7 @@ Tennis: 网球
 "That's a daily average of {dailyAverage}, a weekly average of {weeklyAverage} and a monthly average of {monthlyAverage} 🐣.": '我的日均锻炼距离为{dailyAverage}，周均为{weeklyAverage}，月均为{monthlyAverage} 🐣。'
 'The Eddington number in the context of cycling or running is defined as the maximum number E such that the athlete has covered at least E km on at least E days.': 在骑行或跑步的场景下，埃丁顿数被定义为运动员在至少E天内至少覆盖E公里的最大数E。
 'The amount of CO₂ that {amountOfTrees} trees absorb annually': '{amountOfTrees}棵树每年吸收的二氧化碳量'
-'This badge is dynamically created. You can use it in any &lt;img&gt; tag': '此徽章是动态创建的。你可以在任何&lt;img&gt;标签中使用它'
+'These badges are dynamically created. You can use them in any &lt;img&gt; tag': 'These badges are dynamically created. You can use them in any &lt;img&gt; tag'
 'This feature is currently disabled': 'This feature is currently disabled'
 'This formula means that riding for an hour at your max heart rate results in a score of 100, which we consider "high intensity"': 这个公式意味着以最大心率骑行一小时的得分为100，我们认为这是“高强度”
 'This map shows the daily training intensity for the last year. The training intensity for an activity is calculated based on several metrics.': 这张活动图显示了过去一年的每日训练强度。活动的训练强度是基于多个指标计算的。
@@ -295,6 +298,7 @@ Tue: 周二
 Tuesday: 星期二
 Unspecified: Unspecified
 'Updated on': 更新于
+'User badge': 'User badge'
 'Velo Mobiles': 躺车
 'Very fresh – possible detraining': 'Very fresh – possible detraining'
 'Very high': 非常高
@@ -325,6 +329,7 @@ Yoga: 瑜伽
 'You have not recorded any activities in the previous years.': 'You have not recorded any activities in the previous years.'
 "You recorded workouts in {numberOfCountriesWithWorkouts} different countries, that's {percentage} of all countries 🌍": '您记录了{numberOfCountriesWithWorkouts}个不同国家/地区的锻炼情况，占所有国家/地区的百分之 {percentage} 🌍'
 'You reduced carbon emission by {amountOfCarbonSaved} by commuting 🥳. This equates to': '你的通勤减少了{amountOfCarbonSaved}的碳排放 🥳。这相当于'
+'Your PB badge': 'Your PB badge'
 'Your Strava badge': Strava徽章
 'Your Strava {year} rewind will be available on the 24th of December.': 'Your Strava {year} rewind will be available on the 24th of December.'
 'Your Zwift badge': Zwift徽章
@@ -335,6 +340,7 @@ Yoga: 瑜伽
 'Zone 4 (anaerobic)': 区域4（无氧）
 'Zone 5 (maximal)': 区域5（最大）
 'Zwift Statistics': Zwift统计
+'Zwift badge': 'Zwift badge'
 activities: activities
 age: 年龄
 and: 和

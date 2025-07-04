@@ -2,9 +2,11 @@
 
 namespace App\Domain\Strava\Activity;
 
+use App\Domain\Integration\AI\SupportsAITooling;
 use App\Domain\Strava\Activity\SportType\SportType;
 use App\Domain\Strava\Activity\Stream\PowerOutput;
 use App\Domain\Strava\Activity\Stream\PowerOutputs;
+use App\Domain\Strava\CouldNotDetermineLeafletMap;
 use App\Domain\Strava\Gear\GearId;
 use App\Domain\Strava\LeafletMap;
 use App\Domain\Weather\OpenMeteo\Weather;
@@ -28,7 +30,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Index(name: 'Activity_startDateTimeIndex', columns: ['startDateTime'])]
-final class Activity
+#[ORM\Index(name: 'Activity_sportType', columns: ['sportType'])]
+final class Activity implements SupportsAITooling
 {
     use RecordsEvents;
     use ProvideTimeFormats;
@@ -56,7 +59,7 @@ final class Activity
         #[ORM\Column(type: 'datetime_immutable')]
         private readonly SerializableDateTime $startDateTime,
         #[ORM\Column(type: 'string')]
-        private readonly SportType $sportType,
+        private SportType $sportType,
         #[ORM\Column(type: 'string')]
         private string $name,
         #[ORM\Column(type: 'string', nullable: true)]
@@ -237,6 +240,13 @@ final class Activity
     public function getSportType(): SportType
     {
         return $this->sportType;
+    }
+
+    public function updateSportType(SportType $sportType): self
+    {
+        $this->sportType = $sportType;
+
+        return $this;
     }
 
     public function getStartingCoordinate(): ?Coordinate
@@ -576,7 +586,13 @@ final class Activity
             return null;
         }
 
-        return LeafletMap::forZwiftStartingCoordinate($startingCoordinate);
+        try {
+            return LeafletMap::forZwiftStartingCoordinate($startingCoordinate);
+        } catch (CouldNotDetermineLeafletMap) {
+            // Very old Zwift activities have routes that we don't have corresponding maps for.
+        }
+
+        return null;
     }
 
     public function getLocation(): ?Location
@@ -655,5 +671,40 @@ final class Activity
     public function delete(): void
     {
         $this->recordThat(new ActivityWasDeleted($this->getId()));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function exportForAITooling(): array
+    {
+        return [
+            'id' => $this->getId()->toUnprefixedString(),
+            'startDateTime' => $this->getStartDate(),
+            'sportType' => $this->getSportType()->value,
+            'name' => $this->getName(),
+            'description' => $this->getDescription(),
+            'distanceInKilometer' => $this->getDistance(),
+            'elevationInMeter' => $this->getElevation(),
+            'startingCoordinate' => $this->getStartingCoordinate(),
+            'caloriesBurnt' => $this->getCalories(),
+            'averagePowerInWatts' => $this->getAveragePower(),
+            'maxPowerInWatts' => $this->getMaxPower(),
+            'averageSpeed' => $this->getAverageSpeed(),
+            'maxSpeed' => $this->getMaxSpeed(),
+            'averageHeartRate' => $this->getAverageHeartRate(),
+            'maxHeartRate' => $this->getMaxHeartRate(),
+            'averageCadence' => $this->getAverageCadence(),
+            'movingTimeInSeconds' => $this->getMovingTimeInSeconds(),
+            'kudoCount' => $this->getKudoCount(),
+            'recordedOnDevice' => $this->getDeviceName(),
+            'totalImageCount' => $this->getTotalImageCount(),
+            'location' => $this->getLocation()?->jsonSerialize(),
+            'weather' => $this->getWeather(),
+            'gearId' => $this->getGearId()?->toUnprefixedString(),
+            'gearName' => $this->getGearName(),
+            'isCommute' => $this->isCommute(),
+            'workoutType' => $this->getWorkoutType()?->value,
+        ];
     }
 }

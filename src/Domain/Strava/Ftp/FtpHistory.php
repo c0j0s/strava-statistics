@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Strava\Ftp;
 
+use App\Domain\Integration\AI\SupportsAITooling;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
-final class FtpHistory
+final class FtpHistory implements SupportsAITooling
 {
     /** @var Ftp[] */
     private array $ftps;
@@ -28,7 +29,7 @@ final class FtpHistory
                     ftp: FtpValue::fromInt($ftpValue)
                 );
             } catch (\DateMalformedStringException) {
-                throw new \InvalidArgumentException(sprintf('Invalid date "%s" set in FTP_HISTORY in .env file', $setOn));
+                throw new \InvalidArgumentException(sprintf('Invalid date "%s" set for athlete ftpHistory in config.yaml file', $setOn));
             }
         }
 
@@ -55,6 +56,22 @@ final class FtpHistory
         }
 
         throw new EntityNotFound(sprintf('Ftp for date "%s" not found', $on));
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    public function exportForAITooling(): array
+    {
+        $history = [];
+        foreach ($this->findAll() as $ftp) {
+            $history[] = [
+                'setOn' => $ftp->getSetOn()->format('Y-m-d'),
+                'ftpValue' => $ftp->getFtp()->getValue(),
+            ];
+        }
+
+        return $history;
     }
 
     /**

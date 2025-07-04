@@ -7,12 +7,16 @@ parameters:
     env(APP_DEBUG): 0
     env(LOCK_DSN): 'flock'
     env(TZ): ''
+    env(INSPECTOR_INGESTION_KEY): ''
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+    _instanceof:
+        NeuronAI\Tools\ToolInterface:
+            tags: [ 'app.ai_tool' ]
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -48,7 +52,9 @@ services:
     App\Infrastructure\Time\Format\DateAndTimeFormat:
         factory: [ null, 'create' ]
         arguments: [
-            '@=app_config("appearance.dateFormat")',
+            '@=app_config("appearance.dateFormat.short", "d-m-y")',
+            '@=app_config("appearance.dateFormat.normal", "d-m-Y")',
+            '@=app_config("appearance.dateFormat", "")',
             '@=app_config("appearance.timeFormat")',
         ]
 
@@ -70,6 +76,10 @@ services:
         public: true # We need to access this service from the container in expressions
         class: App\Infrastructure\Config\AppConfig
 
+    App\Domain\App\AppSubTitle:
+        factory: [ null, 'fromOptionalString' ]
+        arguments: [ '@=app_config("general.appSubTitle", "")' ]
+
     App\Domain\App\AppUrl:
         factory: [ null, 'fromString' ]
         arguments: ['@=app_config("general.appUrl")']
@@ -77,6 +87,15 @@ services:
     App\Domain\App\ProfilePictureUrl:
         factory: [ null, 'fromOptionalString' ]
         arguments: ['@=app_config("general.profilePictureUrl")']
+
+    NeuronAI\Chat\History\ChatHistoryInterface:
+        class: App\Domain\Integration\AI\Chat\FlysystemChatHistory
+
+    NeuronAI\Tools\Toolkits\ToolkitInterface:
+        class: App\Domain\Integration\AI\Tool\Toolkit
+
+    App\Domain\Integration\AI\AIProviderFactory:
+        arguments: ['@=app_config("integrations.ai", [])']
 
     App\Domain\Integration\Notification\Ntfy\NtfyUrl:
         factory: [ null, 'fromOptionalString' ]
@@ -98,10 +117,18 @@ services:
         factory: [ null, 'fromString' ]
         arguments: ['@=app_config("general.athlete.birthday")']
 
+    App\Domain\Strava\Athlete\HeartRateZone\HeartRateZoneConfiguration:
+        factory: [ null, 'fromArray' ]
+        arguments: ['@=app_config("general.athlete.heartRateZones", [])']
+
     App\Domain\Strava\Athlete\MaxHeartRate\MaxHeartRateFormula:
         class: App\Domain\Strava\Athlete\MaxHeartRate\MaxHeartRateFormula
         factory: [ '@App\Domain\Strava\Athlete\MaxHeartRate\MaxHeartRateFormulas', 'determineFormula' ]
         arguments: ['@=app_config("general.athlete.maxHeartRateFormula")']
+
+    App\Domain\Strava\Activity\Eddington\Config\EddingtonConfiguration:
+        factory: [ null, 'fromScalarArray' ]
+        arguments: ['@=app_config("metrics.eddington", [])']
 
     App\Domain\Strava\Activity\ImportActivities\ActivityVisibilitiesToImport:
         factory: [ null, 'from' ]
@@ -116,9 +143,12 @@ services:
         arguments: ['@=app_config("import.activitiesToSkipDuringImport")']
 
     App\Domain\Strava\Activity\ImportActivities\SkipActivitiesRecordedBefore:
-        class: App\Domain\Strava\Activity\ImportActivities\SkipActivitiesRecordedBefore
         factory: [ null, 'fromOptionalString' ]
         arguments: ['@=app_config("import.skipActivitiesRecordedBefore")']
+
+    App\Domain\Strava\Activity\SportType\SportTypesSortingOrder:
+        factory: [ null, 'from' ]
+        arguments: ['@=app_config("appearance.sportTypesSortingOrder", [])']
 
     App\Domain\Strava\Activity\SportType\SportTypesToImport:
         factory: [ null, 'from' ]
@@ -130,6 +160,10 @@ services:
             '@=app_config("general.athlete.weightHistory")',
             '@App\Infrastructure\ValueObject\Measurement\UnitSystem'
         ]
+
+    App\Domain\Strava\Challenge\Consistency\ConsistencyChallenges:
+        factory: [ null, 'fromConfiguration' ]
+        arguments: ['@=app_config("metrics.consistencyChallenges", [])']
 
     App\Domain\Strava\Ftp\FtpHistory:
         factory: [ null, 'fromArray' ]
@@ -155,3 +189,6 @@ services:
 
     GuzzleHttp\Client:
         class: GuzzleHttp\Client
+
+    Inspector\Inspector:
+        class: Inspector\Inspector

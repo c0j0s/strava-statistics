@@ -7,6 +7,7 @@ namespace App\Domain\App\BuildDashboardHtml;
 use App\Domain\Strava\Activity\ActivitiesEnricher;
 use App\Domain\Strava\Activity\ActivityIntensity;
 use App\Domain\Strava\Activity\ActivityIntensityChart;
+use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Activity\ActivityTotals;
 use App\Domain\Strava\Activity\ActivityType;
 use App\Domain\Strava\Activity\ActivityTypeRepository;
@@ -29,12 +30,13 @@ use App\Domain\Strava\Activity\WeekdayStats\WeekdayStatsChart;
 use App\Domain\Strava\Activity\WeeklyDistanceTimeChart;
 use App\Domain\Strava\Activity\YearlyDistance\YearlyDistanceChart;
 use App\Domain\Strava\Activity\YearlyDistance\YearlyStatistics;
-use App\Domain\Strava\Athlete\HeartRateZone;
-use App\Domain\Strava\Athlete\TimeInHeartRateZoneChart;
+use App\Domain\Strava\Athlete\HeartRateZone\HeartRateZone;
+use App\Domain\Strava\Athlete\HeartRateZone\TimeInHeartRateZoneChart;
 use App\Domain\Strava\Athlete\Weight\AthleteWeightHistory;
 use App\Domain\Strava\Calendar\Months;
 use App\Domain\Strava\CarbonSavedComparison;
-use App\Domain\Strava\Challenge\Consistency\ChallengeConsistency;
+use App\Domain\Strava\Challenge\Consistency\ConsistencyChallengeCalculator;
+use App\Domain\Strava\Challenge\Consistency\ConsistencyChallenges;
 use App\Domain\Strava\Ftp\FtpHistory;
 use App\Domain\Strava\Ftp\FtpHistoryChart;
 use App\Domain\Strava\Trivia;
@@ -53,6 +55,7 @@ use Twig\Environment;
 final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
 {
     public function __construct(
+        private ActivityRepository $activityRepository,
         private ActivityHeartRateRepository $activityHeartRateRepository,
         private ActivityPowerRepository $activityPowerRepository,
         private FtpHistory $ftpHistory,
@@ -62,6 +65,8 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         private ActivityBestEffortRepository $activityBestEffortRepository,
         private ActivitiesEnricher $activitiesEnricher,
         private ActivityIntensity $activityIntensity,
+        private ConsistencyChallenges $consistencyChallenges,
+        private ConsistencyChallengeCalculator $consistencyChallengeCalculator,
         private QueryBus $queryBus,
         private UnitSystem $unitSystem,
         private Environment $twig,
@@ -129,7 +134,9 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
             if ($activityType->supportsYearlyStats()) {
                 $yearlyDistanceCharts[$activityType->value] = Json::encode(
                     YearlyDistanceChart::create(
-                        activities: $activitiesPerActivityType[$activityType->value],
+                        activityRepository: $this->activityRepository,
+                        uniqueYears: $activitiesPerActivityType[$activityType->value]->getUniqueYears(),
+                        activityType: $activityType,
                         unitSystem: $this->unitSystem,
                         translator: $this->translator,
                         now: $now
@@ -161,7 +168,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
         $trivia = Trivia::getInstance($allActivities);
         $bestAllTimePowerOutputs = $this->activityPowerRepository->findBestForSportTypes(SportTypes::thatSupportPeakPowerOutputs());
 
-        $bestEffortsCharts = [];
+        $bestEfforts = $bestEffortsCharts = [];
         /** @var ActivityType $activityType */
         foreach ($importedActivityTypes as $activityType) {
             if (!$activityType->supportsBestEffortsStats()) {
@@ -173,6 +180,7 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                 continue;
             }
 
+            $bestEfforts[$activityType->value] = $bestEffortsForActivityType;
             $bestEffortsCharts[$activityType->value] = Json::encode(
                 BestEffortChart::create(
                     activityType: $activityType,
@@ -239,12 +247,15 @@ final readonly class BuildDashboardHtmlCommandHandler implements CommandHandler
                         translator: $this->translator,
                     )->build(),
                 ),
-                'challengeConsistency' => ChallengeConsistency::create(
+                'allMonths' => $allMonths,
+                'allConsistencyChallenges' => $this->consistencyChallenges,
+                'calculatedConsistencyChallenges' => $this->consistencyChallengeCalculator->calculateFor(
                     months: $allMonths,
-                    activities: $allActivities
+                    challenges: $this->consistencyChallenges
                 ),
                 'yearlyDistanceCharts' => $yearlyDistanceCharts,
                 'yearlyStatistics' => $yearlyStatistics,
+                'bestEfforts' => $bestEfforts,
                 'bestEffortsCharts' => $bestEffortsCharts,
                 'trainingMetrics' => $trainingMetrics,
                 'restDaysInLast7Days' => $numberOfRestDays,

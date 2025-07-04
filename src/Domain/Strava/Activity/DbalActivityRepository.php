@@ -3,6 +3,7 @@
 namespace App\Domain\Strava\Activity;
 
 use App\Domain\Strava\Activity\SportType\SportType;
+use App\Domain\Strava\Activity\SportType\SportTypes;
 use App\Domain\Strava\Gear\GearId;
 use App\Infrastructure\Eventing\EventBus;
 use App\Infrastructure\Exception\EntityNotFound;
@@ -15,6 +16,7 @@ use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Infrastructure\ValueObject\Measurement\Velocity\KmPerHour;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Infrastructure\ValueObject\Time\Year;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 final class DbalActivityRepository implements ActivityRepository
@@ -92,6 +94,73 @@ final class DbalActivityRepository implements ActivityRepository
         DbalActivityRepository::$cachedActivities[$cacheKey] = Activities::fromArray($activities);
 
         return DbalActivityRepository::$cachedActivities[$cacheKey];
+    }
+
+    public function findByStartDate(SerializableDateTime $startDate, ?ActivityType $activityType): Activities
+    {
+        // @TODO: Add static cache to this call.
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('*')
+            ->from('Activity')
+            ->andWhere('startDateTime BETWEEN :startDateTimeStart AND :startDateTimeEnd')
+            ->setParameter(
+                key: 'startDateTimeStart',
+                value: $startDate->format('Y-m-d 00:00:00'),
+            )
+            ->setParameter(
+                key: 'startDateTimeEnd',
+                value: $startDate->format('Y-m-d 23:59:59'),
+            )
+            ->orderBy('startDateTime', 'DESC');
+
+        if ($activityType) {
+            $queryBuilder->andWhere('sportType IN (:sportTypes)')
+                ->setParameter(
+                    key: 'sportTypes',
+                    value: array_map(fn (SportType $sportType) => $sportType->value, $activityType->getSportTypes()->toArray()),
+                    type: ArrayParameterType::STRING
+                );
+        }
+
+        return Activities::fromArray(array_map(
+            fn (array $result) => $this->hydrate($result),
+            $queryBuilder->executeQuery()->fetchAllAssociative()
+        ));
+    }
+
+    public function findBySportTypes(SportTypes $sportTypes): Activities
+    {
+        // @TODO: Add static cache to this call.
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('*')
+            ->from('Activity')
+            ->andWhere('sportType IN (:sportTypes)')
+            ->setParameter(
+                key: 'sportTypes',
+                value: $sportTypes->map(fn (SportType $sportType) => $sportType->value),
+                type: ArrayParameterType::STRING
+            )
+            ->orderBy('startDateTime', 'DESC');
+
+        return Activities::fromArray(array_map(
+            fn (array $result) => $this->hydrate($result),
+            $queryBuilder->executeQuery()->fetchAllAssociative()
+        ));
+    }
+
+    public function hasForSportTypes(SportTypes $sportTypes): bool
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('COUNT(*)')
+            ->from('Activity')
+            ->andWhere('sportType IN (:sportTypes)')
+            ->setParameter(
+                key: 'sportTypes',
+                value: array_map(fn (SportType $sportType) => $sportType->value, $sportTypes->toArray()),
+                type: ArrayParameterType::STRING
+            );
+
+        return (bool) $queryBuilder->executeQuery()->fetchOne();
     }
 
     public function delete(Activity $activity): void

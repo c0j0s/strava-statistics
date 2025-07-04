@@ -6,15 +6,26 @@ namespace App\Domain\Strava\Activity\BestEffort;
 
 use App\Domain\Strava\Activity\ActivityId;
 use App\Domain\Strava\Activity\ActivityIds;
+use App\Domain\Strava\Activity\ActivityRepository;
 use App\Domain\Strava\Activity\ActivityType;
 use App\Domain\Strava\Activity\SportType\SportType;
+use App\Domain\Strava\Activity\SportType\SportTypes;
 use App\Domain\Strava\Activity\Stream\StreamType;
+use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Repository\DbalRepository;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 
 final readonly class DbalActivityBestEffortRepository extends DbalRepository implements ActivityBestEffortRepository
 {
+    public function __construct(
+        Connection $connection,
+        private ActivityRepository $activityRepository,
+    ) {
+        parent::__construct($connection);
+    }
+
     public function add(ActivityBestEffort $activityBestEffort): void
     {
         $sql = 'INSERT INTO ActivityBestEffort (activityId, sportType, distanceInMeter, timeInSeconds)
@@ -28,7 +39,17 @@ final readonly class DbalActivityBestEffortRepository extends DbalRepository imp
         ]);
     }
 
+    public function findAll(): ActivityBestEfforts
+    {
+        return $this->findBestEffortsForSportTypes(SportTypes::fromArray(SportType::cases()));
+    }
+
     public function findBestEffortsFor(ActivityType $activityType): ActivityBestEfforts
+    {
+        return $this->findBestEffortsForSportTypes($activityType->getSportTypes());
+    }
+
+    private function findBestEffortsForSportTypes(SportTypes $sportTypes): ActivityBestEfforts
     {
         $sql = 'WITH BestEfforts AS (
                     SELECT distanceInMeter, MIN(timeInSeconds) AS bestTime, sportType
@@ -58,22 +79,34 @@ final readonly class DbalActivityBestEffortRepository extends DbalRepository imp
                 WHERE rowNumber = 1
                 ORDER BY distanceInMeter ASC';
 
-        return ActivityBestEfforts::fromArray(array_map(
-            fn (array $result) => ActivityBestEffort::fromState(
-                activityId: ActivityId::fromString($result['activityId']),
+        $results = $this->connection->executeQuery($sql,
+            [
+                'sportTypes' => array_unique(array_map(fn (SportType $sportType) => $sportType->value, $sportTypes->toArray())),
+            ],
+            [
+                'sportTypes' => ArrayParameterType::STRING,
+            ]
+        )->fetchAllAssociative();
+
+        $activityBestEfforts = ActivityBestEfforts::empty();
+
+        foreach ($results as $result) {
+            $activityId = ActivityId::fromString($result['activityId']);
+            $activityBestEffort = ActivityBestEffort::fromState(
+                activityId: $activityId,
                 distanceInMeter: Meter::from($result['distanceInMeter']),
                 sportType: SportType::from($result['sportType']),
                 timeInSeconds: $result['timeInSeconds']
-            ),
-            $this->connection->executeQuery($sql,
-                [
-                    'sportTypes' => array_unique($activityType->getSportTypes()->map(fn (SportType $sportType) => $sportType->value)),
-                ],
-                [
-                    'sportTypes' => ArrayParameterType::STRING,
-                ]
-            )->fetchAllAssociative()
-        ));
+            );
+
+            try {
+                $activityBestEffort->enrichWithActivity($this->activityRepository->find($activityId));
+            } catch (EntityNotFound) {
+            }
+            $activityBestEfforts->add($activityBestEffort);
+        }
+
+        return $activityBestEfforts;
     }
 
     public function findActivityIdsThatNeedBestEffortsCalculation(): ActivityIds
@@ -108,5 +141,14 @@ final readonly class DbalActivityBestEffortRepository extends DbalRepository imp
                 ]
             )->fetchFirstColumn()
         ));
+    }
+
+    public function deleteForActivity(ActivityId $activityId): void
+    {
+        $sql = 'DELETE FROM ActivityBestEffort WHERE activityId = :activityId';
+
+        $this->connection->executeStatement($sql, [
+            'activityId' => $activityId,
+        ]);
     }
 }

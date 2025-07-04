@@ -36,20 +36,20 @@ final class StreamBasedActivityPowerRepository implements ActivityPowerRepositor
         }
 
         $activities = $this->activityRepository->findAll();
-        $powerStreams = $this->activityStreamRepository->findByStreamType(StreamType::WATTS);
-
         /** @var Activity $activity */
         foreach ($activities as $activity) {
             StreamBasedActivityPowerRepository::$cachedPowerOutputs[(string) $activity->getId()] = PowerOutputs::empty();
-            $powerStreamsForActivity = $powerStreams->filter(fn (ActivityStream $stream) => $stream->getActivityId() == $activity->getId());
 
-            if ($powerStreamsForActivity->isEmpty()) {
+            try {
+                $powerStreamForActivity = $this->activityStreamRepository->findOneByActivityAndStreamType(
+                    activityId: $activity->getId(),
+                    streamType: StreamType::WATTS
+                );
+            } catch (EntityNotFound) {
                 continue;
             }
 
-            /** @var ActivityStream $activityStream */
-            $activityStream = $powerStreamsForActivity->getFirst();
-            $bestAverages = $activityStream->getBestAverages();
+            $bestAverages = $powerStreamForActivity->getBestAverages();
 
             foreach (self::TIME_INTERVALS_IN_SECONDS_REDACTED as $timeIntervalInSeconds) {
                 $interval = CarbonInterval::seconds($timeIntervalInSeconds);
@@ -62,7 +62,7 @@ final class StreamBasedActivityPowerRepository implements ActivityPowerRepositor
                     $athleteWeight = $this->athleteWeightHistory->find($activity->getStartDate())->getWeightInKg();
                 } catch (EntityNotFound) {
                     throw new EntityNotFound(sprintf('Trying to calculate the relative power for activity "%s" on %s, but no corresponding athleteWeight was found. 
-                    Make sure you configure the proper weights in your .env file. Do not forgot to restart your container after changing the weights', $activity->getName(), $activity->getStartDate()->format('Y-m-d')));
+                    Make sure you configure the proper weights in your config.yaml file. Do not forgot to restart your container after changing the weights', $activity->getName(), $activity->getStartDate()->format('Y-m-d')));
                 }
 
                 $relativePower = $athleteWeight->toFloat() > 0 ? round($bestAverageForTimeInterval / $athleteWeight->toFloat(), 2) : 0;
@@ -157,6 +157,7 @@ final class StreamBasedActivityPowerRepository implements ActivityPowerRepositor
                 streamData: Json::decode($result['data']),
                 createdOn: SerializableDateTime::fromString($result['createdOn']),
                 bestAverages: Json::decode($result['bestAverages'] ?? '[]'),
+                normalizedPower: $result['normalizedPower'] ?? null
             );
 
             $activity = $this->activityRepository->find($stream->getActivityId());
@@ -167,7 +168,7 @@ final class StreamBasedActivityPowerRepository implements ActivityPowerRepositor
                 $athleteWeight = $this->athleteWeightHistory->find($activity->getStartDate())->getWeightInKg();
             } catch (EntityNotFound) {
                 throw new EntityNotFound(sprintf('Trying to calculate the relative power for activity "%s" on %s, but no corresponding athleteWeight was found. 
-                    Make sure you configure the proper weights in your .env file. Do not forgot to restart your container after changing the weights', $activity->getName(), $activity->getStartDate()->format('Y-m-d')));
+                    Make sure you configure the proper weights in your config.yaml file. Do not forgot to restart your container after changing the weights', $activity->getName(), $activity->getStartDate()->format('Y-m-d')));
             }
 
             $relativePower = $athleteWeight->toFloat() > 0 ? round($bestAverageForTimeInterval / $athleteWeight->toFloat(), 2) : 0;

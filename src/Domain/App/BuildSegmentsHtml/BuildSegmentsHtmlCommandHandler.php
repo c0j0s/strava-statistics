@@ -33,7 +33,6 @@ final readonly class BuildSegmentsHtmlCommandHandler implements CommandHandler
     {
         assert($command instanceof BuildSegmentsHtml);
 
-        $activities = $this->activitiesEnricher->getEnrichedActivities();
         $importedSportTypes = $this->sportTypeRepository->findAll();
 
         $dataDatableRows = [];
@@ -43,13 +42,20 @@ final readonly class BuildSegmentsHtmlCommandHandler implements CommandHandler
             $segments = $this->segmentRepository->findAll($pagination);
             /** @var Segment $segment */
             foreach ($segments as $segment) {
-                $segmentEfforts = $this->segmentEffortRepository->findBySegmentId($segment->getId(), 10);
+                $segmentEffortsTopTen = $this->segmentEffortRepository->findTopXBySegmentId($segment->getId(), 10);
+                $segmentEffortsHistory = $this->segmentEffortRepository->findHistoryBySegmentId($segment->getId());
                 $segment->enrichWithNumberOfTimesRidden($this->segmentEffortRepository->countBySegmentId($segment->getId()));
-                $segment->enrichWithBestEffort($segmentEfforts->getBestEffort());
+                $segment->enrichWithBestEffort($segmentEffortsTopTen->getBestEffort());
 
                 /** @var \App\Domain\Strava\Segment\SegmentEffort\SegmentEffort $segmentEffort */
-                foreach ($segmentEfforts as $segmentEffort) {
-                    $activity = $activities->getByActivityId($segmentEffort->getActivityId());
+                foreach ($segmentEffortsTopTen as $segmentEffort) {
+                    $activity = $this->activitiesEnricher->getEnrichedActivity($segmentEffort->getActivityId());
+                    $segmentEffort->enrichWithActivity($activity);
+                }
+
+                /** @var \App\Domain\Strava\Segment\SegmentEffort\SegmentEffort $segmentEffort */
+                foreach ($segmentEffortsHistory as $segmentEffort) {
+                    $activity = $this->activitiesEnricher->getEnrichedActivity($segmentEffort->getActivityId());
                     $segmentEffort->enrichWithActivity($activity);
                 }
 
@@ -57,7 +63,8 @@ final readonly class BuildSegmentsHtmlCommandHandler implements CommandHandler
                     'segment/'.$segment->getId().'.html',
                     $this->twig->load('html/segment/segment.html.twig')->render([
                         'segment' => $segment,
-                        'segmentEfforts' => $segmentEfforts->slice(0, 10),
+                        'segmentEffortsTopTen' => $segmentEffortsTopTen,
+                        'segmentEffortsHistory' => $segmentEffortsHistory,
                     ]),
                 );
 

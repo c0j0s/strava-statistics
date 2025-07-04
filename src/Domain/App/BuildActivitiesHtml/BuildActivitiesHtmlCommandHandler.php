@@ -6,7 +6,9 @@ namespace App\Domain\App\BuildActivitiesHtml;
 
 use App\Domain\Strava\Activity\ActivitiesEnricher;
 use App\Domain\Strava\Activity\ActivityTotals;
+use App\Domain\Strava\Activity\BestEffort\ActivityBestEffortRepository;
 use App\Domain\Strava\Activity\HeartRateDistributionChart;
+use App\Domain\Strava\Activity\Lap\ActivityLapRepository;
 use App\Domain\Strava\Activity\PowerDistributionChart;
 use App\Domain\Strava\Activity\Split\ActivitySplitRepository;
 use App\Domain\Strava\Activity\SportType\SportTypeRepository;
@@ -18,6 +20,7 @@ use App\Domain\Strava\Activity\Stream\CombinedStream\CombinedStreamProfileChart;
 use App\Domain\Strava\Activity\Stream\CombinedStream\CombinedStreamType;
 use App\Domain\Strava\Activity\Stream\StreamType;
 use App\Domain\Strava\Athlete\AthleteRepository;
+use App\Domain\Strava\Athlete\HeartRateZone\HeartRateZoneConfiguration;
 use App\Domain\Strava\Gear\GearRepository;
 use App\Domain\Strava\Segment\SegmentEffort\SegmentEffortRepository;
 use App\Infrastructure\CQRS\Command\Command;
@@ -40,11 +43,14 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
         private ActivityStreamRepository $activityStreamRepository,
         private CombinedActivityStreamRepository $combinedActivityStreamRepository,
         private ActivitySplitRepository $activitySplitRepository,
+        private ActivityLapRepository $activityLapRepository,
         private ActivityHeartRateRepository $activityHeartRateRepository,
         private SportTypeRepository $sportTypeRepository,
         private SegmentEffortRepository $segmentEffortRepository,
         private GearRepository $gearRepository,
+        private ActivityBestEffortRepository $activityBestEffortRepository,
         private ActivitiesEnricher $activitiesEnricher,
+        private HeartRateZoneConfiguration $heartRateZoneConfiguration,
         private UnitSystem $unitSystem,
         private Environment $twig,
         private FilesystemOperator $buildStorage,
@@ -60,6 +66,8 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
         $now = $command->getCurrentDateTime();
         $athlete = $this->athleteRepository->find();
         $importedSportTypes = $this->sportTypeRepository->findAll();
+        $bestEfforts = $this->activityBestEffortRepository->findAll();
+
         $activities = $this->activitiesEnricher->getEnrichedActivities();
 
         $activityTotals = ActivityTotals::getInstance(
@@ -99,10 +107,14 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
             $heartRateDistributionChart = null;
             if ($activity->getAverageHeartRate()
                 && ($timeInSecondsPerHeartRate = $this->activityHeartRateRepository->findTimeInSecondsPerHeartRateForActivity($activity->getId()))) {
-                $heartRateDistributionChart = HeartRateDistributionChart::fromHeartRateData(
+                $heartRateDistributionChart = HeartRateDistributionChart::create(
                     heartRateData: $timeInSecondsPerHeartRate,
                     averageHeartRate: $activity->getAverageHeartRate(),
-                    athleteMaxHeartRate: $athlete->getMaxHeartRate($activity->getStartDate())
+                    athleteMaxHeartRate: $athlete->getMaxHeartRate($activity->getStartDate()),
+                    heartRateZones: $this->heartRateZoneConfiguration->getHeartRateZonesFor(
+                        sportType: $activity->getSportType(),
+                        on: $activity->getStartDate()
+                    )
                 );
             }
 
@@ -198,7 +210,9 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     'powerDistributionChart' => $powerDistributionChart ? Json::encode($powerDistributionChart->build()) : null,
                     'segmentEfforts' => $this->segmentEffortRepository->findByActivityId($activity->getId()),
                     'splits' => $activitySplits,
+                    'laps' => $this->activityLapRepository->findBy($activity->getId()),
                     'profileCharts' => array_reverse($activityProfileCharts),
+                    'bestEfforts' => $bestEfforts->getByActivity($activity->getId()),
                 ]),
             );
 
